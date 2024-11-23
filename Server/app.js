@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const userRoutes = require('./routes/userRoutes'); // Define routes
+const userRoutes = require('./routes/userRoutes'); 
+const computerRoutes = require('./routes/computerRoutes');
 
 dotenv.config({ path: './config/config.env' });
 
@@ -14,7 +15,8 @@ app.get('/', (req, res) => {
 });
 
 
-app.use('/api/users', userRoutes); // Mount user-related routes
+app.use('/api/users', userRoutes); 
+app.use('/api/computers', computerRoutes);
 
 app.use((req, res) => {
     res.status(404).json({ message: 'Route not found' });
