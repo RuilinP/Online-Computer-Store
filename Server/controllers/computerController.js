@@ -14,3 +14,36 @@ exports.getComputerByIndex = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving computer', error: error.message });
     }
 };
+
+exports.addNewComputer = async (req, res) => {
+    try {
+        const { model, name, category, address, specification, manufacturer, releaseDate, stockCode, popularity } = req.body;
+
+        if (!model || !name || !category || !stockCode) {
+            return res.status(400).json({ message: 'Model, name, category, and stockCode are required.' });
+        }
+
+        const existingComputer = await Computer.findOne({
+            where: { stockCode },
+        });
+        if (existingComputer) {
+            return res.status(409).json({ message: `A computer with stockCode ${stockCode} already exists.` });
+        }
+
+        const newComputer = await Computer.create({
+            model,
+            name,
+            category,
+            address,
+            specification,
+            manufacturer,
+            releaseDate,
+            stockCode,
+            popularity,
+        });
+
+        res.status(201).json({ message: 'New computer added successfully.', computer: newComputer });
+    } catch (err) {
+        res.status(500).json({ message: 'Error adding new computer.', error: err.message });
+    }
+};
