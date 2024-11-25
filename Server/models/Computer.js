@@ -1,5 +1,6 @@
 const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/db');
+const Image = require('./Image');
 
 class Computer extends Model {}
 
@@ -48,10 +49,6 @@ Computer.init(
             type: DataTypes.INTEGER,
             allowNull: true,
         },
-        image: {
-            type: DataTypes.STRING, 
-            allowNull: true,
-        },
     },
     {
         sequelize,
@@ -60,5 +57,16 @@ Computer.init(
         timestamps: false,
     }
 );
+
+Computer.hasMany(Image, {
+    foreignKey: 'computer_id',
+    as: 'images',
+    onDelete: 'CASCADE',
+});
+
+Image.belongsTo(Computer, {
+    foreignKey: 'computer_id',
+    as: 'computer',
+});
 
 module.exports = Computer;
