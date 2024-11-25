@@ -30,6 +30,8 @@ exports.addNewComputer = async (req, res) => {
             return res.status(409).json({ message: `A computer with stockCode ${stockCode} already exists.` });
         }
 
+        const image = req.file ? `/uploads/${req.file.filename}` : null;
+
         const newComputer = await Computer.create({
             model,
             name,
@@ -40,6 +42,7 @@ exports.addNewComputer = async (req, res) => {
             releaseDate,
             stockCode,
             popularity,
+            image,
         });
 
         res.status(201).json({ message: 'New computer added successfully.', computer: newComputer });

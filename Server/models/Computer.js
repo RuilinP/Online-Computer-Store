@@ -48,6 +48,10 @@ Computer.init(
             type: DataTypes.INTEGER,
             allowNull: true,
         },
+        image: {
+            type: DataTypes.STRING, 
+            allowNull: true,
+        },
     },
     {
         sequelize,

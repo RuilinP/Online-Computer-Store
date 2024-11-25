@@ -10,6 +10,8 @@ const app = express();
 // Middleware 
 app.use(express.json());
 
+app.use('/uploads', express.static('uploads'));
+
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Server is running, welcome to the API' });
 });
