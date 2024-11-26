@@ -23,10 +23,14 @@ exports.getComputerByIndex = async (req, res) => {
 exports.addNewComputer = async (req, res) => {
     const transaction = await Computer.sequelize.transaction();
     try {
-        const { model, name, category, address, specification, manufacturer, releaseDate, stockCode, popularity } = req.body;
+        const { model, name, category, address, specification, manufacturer, releaseDate, stockCode, popularity, price } = req.body;
 
         if (!model || !name || !category || !stockCode) {
             return res.status(400).json({ message: 'Model, name, category, and stockCode are required.' });
+        }
+
+        if (!price || isNaN(price) || price < 0) {
+            return res.status(400).json({ message: 'Invalid price. Price must be a non-negative number.' });
         }
 
         const existingComputer = await Computer.findOne({ where: { stockCode } });
@@ -45,6 +49,7 @@ exports.addNewComputer = async (req, res) => {
                 releaseDate,
                 stockCode,
                 popularity,
+                price,
             },
             { transaction }
         );
@@ -81,6 +86,11 @@ exports.updateComputer = async (req, res) => {
         if (!computer) {
             return res.status(404).json({ message: `Computer with ID ${id} not found.` });
         }
+
+        if (updateData.price && (isNaN(updateData.price) || updateData.price < 0)) {
+            return res.status(400).json({ message: 'Invalid price. Price must be a non-negative number.' });
+        }
+        
 
         delete updateData.removeImages; 
         await computer.update(updateData, { transaction });
