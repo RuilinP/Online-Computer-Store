@@ -1,5 +1,6 @@
 const Computer = require('../models/Computer');
 const Image = require('../models/Image'); 
+const { Op } = require('sequelize');
 
 exports.getComputerByIndex = async (req, res) => {
     try {
@@ -19,6 +20,62 @@ exports.getComputerByIndex = async (req, res) => {
         res.status(500).json({ message: 'Error fetching computer.', error: err.message });
     }
 };
+
+exports.getAllComputers = async (req, res) => {
+    try {
+        const { filter, sort, search, limit = 10, offset = 0 } = req.query;
+
+        const conditions = {};
+
+        if (search) {
+            conditions[Op.or] = [
+                { name: { [Op.like]: `%${search}%` } },
+                { model: { [Op.like]: `%${search}%` } },
+                { category: { [Op.like]: `%${search}%` } },
+                { manufacturer: { [Op.like]: `%${search}%` } },
+            ];
+        }
+
+        if (filter) {
+            const parsedFilter = JSON.parse(filter);
+            Object.keys(parsedFilter).forEach((key) => {
+                if (key === 'price') {
+                    const [min, max] = parsedFilter[key];
+                    conditions.price = { [Op.between]: [min, max] };
+                } else if (key === 'popularity') {
+                    const [min, max] = parsedFilter[key];
+                    conditions.popularity = { [Op.between]: [min, max] };
+                } else {
+                    conditions[key] = parsedFilter[key];
+                }
+            });
+        }
+
+        const order = [];
+        if (sort) {
+            const [field, direction] = sort.split(':');
+            order.push([field, direction.toUpperCase()]);
+        }
+
+        const computers = await Computer.findAll({
+            where: conditions,
+            include: { model: Image, as: 'images' }, 
+            limit: parseInt(limit, 10),
+            offset: parseInt(offset, 10),
+            order,
+        });
+
+        const total = computers.length; 
+        res.status(200).json({
+            message: 'Computers retrieved successfully.',
+            total,
+            computers,
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Error retrieving computers.', error: err.message });
+    }
+};
+
 
 exports.addNewComputer = async (req, res) => {
     const transaction = await Computer.sequelize.transaction();
