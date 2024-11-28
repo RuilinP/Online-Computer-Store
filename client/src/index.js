@@ -1,16 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NavBar from './NavBar/NavBar';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
+
+import NoPage from './pages/NoPage.js'
+import Home from './pages/Home.js'
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <NavBar />
-    <App />
-  </React.StrictMode>
+    <BrowserRouter>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={< Home/>}/>
+        <Route path="*" element = {< NoPage/>}/>
+      </Routes>
+    </BrowserRouter>
 );
 
 // If you want to start measuring performance in your app, pass a function
