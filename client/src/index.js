@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import NoPage from './pages/NoPage.js'
 import Home from './pages/Home.js'
+import Login from './pages/Login.js'
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -15,6 +16,7 @@ root.render(
       <NavBar />
       <Routes>
         <Route path="/" element={< Home/>}/>
+        <Route path="login" element={< Login/>}/>
         <Route path="*" element = {< NoPage/>}/>
       </Routes>
     </BrowserRouter>
