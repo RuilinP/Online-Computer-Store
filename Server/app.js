@@ -20,8 +20,12 @@ app.use('/api/computers', computerRoutes);
 app.use('/api/carts', cartRoutes);
 app.use('/api/orders', orderRoutes);
 
-app.use((req, res) => {
-    res.status(404).json({ message: 'Route not found' });
+// Central error handling
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.status || 500).json({ message: err.message || 'Internal Server Error' });
 });
+
+
 // Export the app instance
 module.exports = app;
