@@ -11,8 +11,6 @@ const authorizeRole = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
-
-
 router.post('/create', authenticateJWT, authorizeRole(['buyer']), createOrder);  // Create new order
 router.post('/add', authenticateJWT, authorizeRole(['buyer']), addItemToOrder);  // Add Item to order
 router.get('/:id', authenticateJWT, authorizeRole(['buyer', 'admin']), getOrder);    // Get order with items
