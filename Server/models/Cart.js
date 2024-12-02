@@ -30,7 +30,7 @@ Cart.init(
 );
 
 
-//Relationship between carts and users
+// 1:1 Relationship between carts and users
 User.hasMany(Cart, {
     foreignKey: 'user_id',
     as: 'cart'

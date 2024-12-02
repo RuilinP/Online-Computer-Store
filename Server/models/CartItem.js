@@ -47,7 +47,7 @@ CartItem.init(
 );
 
 
-//Relationship between OrderItem: Computer and Order
+// 1:M Relationship between CartItem: Computer and Order
 Cart.hasMany(CartItem, {
     foreignKey: 'cart_id',
     as: 'items'
