@@ -28,7 +28,7 @@ Order.init(
         order_status: { //Pendding, completed or canceled
             type: DataTypes.ENUM('pending', 'completed', 'canceled'),
             allowNull: false,
-            defaultValue: 'pendding',
+            defaultValue: 'pending',
         }
     },
     {
@@ -40,7 +40,7 @@ Order.init(
 );
 
 
-//Relationship between orders and users
+//1:1 Relationship between orders and users
 User.hasMany(Order, {
     foreignKey: 'user_id',
     as: 'orders'

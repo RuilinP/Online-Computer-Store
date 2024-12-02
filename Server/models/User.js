@@ -16,6 +16,11 @@ class User extends Model { }
 User.init(
     {
         //Model attribuites
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
         name: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -88,8 +93,8 @@ User.init(
             defaultValue: 'buyer',
             validate: {
                 isIn: {
-                    args: [['admin', 'buyer']],
-                    msg: 'Role must be admin or buyer',
+                    args: [['admin', 'buyer', 'seller']],
+                    msg: 'Role must be admin, seller or buyer',
                 },
             },
         },
@@ -109,7 +114,7 @@ User.prototype.validatePassword = async function (password) {
 };
 
 // This hook to hash the password before creating a new user
-User.beforeCreate(async (user, options) => {
+User.beforeCreate(async (user) => {
 
     if (user.password) {
         user.hashedPassword = await hashPassword(user.password);
