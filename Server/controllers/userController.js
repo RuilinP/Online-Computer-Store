@@ -1,7 +1,9 @@
 const User = require('../models/User'); // Import the User model
 const jwt = require('jsonwebtoken');   // For authentication
 
-// Create a new user
+// Description: Create a new user
+// Route: POST /api/users
+// access: Private
 exports.createUser = async (req, res) => {
     try {
         const { name, phone, email, address, password, role } = req.body;
@@ -20,7 +22,9 @@ exports.createUser = async (req, res) => {
     }
 };
 
-// Get all users
+// Description: Get all users
+// Route: GET /api/users
+// access: Privat
 exports.getUsers = async (req, res) => {
     try {
         const users = await User.findAll({ attributes: { exclude: ['hashedPassword'] } });
@@ -44,7 +48,10 @@ exports.getUserById = async (req, res) => {
     }
 };
 
-// Update a user's details
+// 
+// Description: Update a user's details
+// Route: PUT /api/users/:id
+// access: Privat
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
@@ -78,11 +85,11 @@ exports.updateUser = async (req, res) => {
 // Delete a user
 exports.deleteUser = async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params; //extract user id for the url
         const user = await User.findByPk(id);
 
         if (!user) {
-            return res.status(404).json({ message: `User with ID ${id}not found` });
+            return res.status(404).json({ message: `User with ID ${id} not found` });
         }
 
         await user.destroy(); // paranoid: true
