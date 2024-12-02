@@ -1,11 +1,19 @@
-// TODO If not logged in, redirect to login
+import { Navigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { IsLoggedInContext } from '../context';
 
 function User() {
-    return (
-      <div>
-        <h1>User Placeholder</h1>
-      </div>
-    );
+  const isLoggedIn = useContext(IsLoggedInContext);
+  if (!isLoggedIn) {
+    // redirect if not logged in
+    return <Navigate replace to="/login"/>
   }
+
+  return (
+    <div>
+      <h1>User Placeholder</h1>
+    </div>
+  );
+}
   
   export default User;
