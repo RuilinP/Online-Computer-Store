@@ -2,14 +2,14 @@ const { DataTypes, Model } = require('sequelize');
 const sequelize = require('../config/db');
 const Image = require('./Image');
 
-class Computer extends Model {}
+class Computer extends Model { }
 
 Computer.init(
     {
         computer_id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
-            primaryKey: true, 
+            primaryKey: true,
         },
         model: {
             type: DataTypes.STRING(100),
@@ -40,19 +40,18 @@ Computer.init(
             type: DataTypes.DATE,
             allowNull: true,
         },
-        stockCode: {
-            type: DataTypes.STRING(100),
-            allowNull: true,
-            unique: true,
+        stock: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         popularity: {
             type: DataTypes.INTEGER,
             allowNull: true,
         },
         price: {
-            type: DataTypes.DECIMAL(10, 2), 
+            type: DataTypes.DECIMAL(10, 2),
             allowNull: false,
-            defaultValue: 0.00, 
+            defaultValue: 0.00,
         },
     },
     {
