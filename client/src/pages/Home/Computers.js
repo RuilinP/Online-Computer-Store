@@ -1,7 +1,8 @@
-import { get_computers} from '../../models/computers_model'
+import { get_computers, get_image_urls_by_computer_id} from '../../models/computers_model'
+import { add_item_to_cart } from '../../models/cart_model';
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-
+import "./Computers.css"
 
 function Computers(search = undefined){
     
@@ -25,15 +26,23 @@ function Computers(search = undefined){
     }
 
     let elements = []
-    let url = ""
     for (const computer of data){
-        url = `/computer/:${computer.computer_id}`
-        elements.push(<div>
-            <NavLink to={url}>{computer.name}</NavLink>
+        let id = computer.computer_id
+        let img_url = get_image_urls_by_computer_id(id)[0]
+        elements.push(<div className='product_tile'>
+            <img src={img_url} alt='Product Image Loading...'/>
+            <h2>{computer.name}</h2>
+            <p>${computer.price.toFixed(2)} CAD</p>
+            <button onClick={()=>{add_item_to_cart(id)}}>
+              Add To Cart
+              <img src = "assets/shopping_cart_icon.svg"/>
+            </button>
         </div>)
     }
 
-    return elements
+    return <div className='display_area'>
+      {elements}
+    </div>
 
 }
 
