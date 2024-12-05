@@ -2,7 +2,7 @@
 
 
 export async function get_computers(search = undefined){
-    let computers = await(await fetch('http://localhost:3001/api/computers')).json()
+    let computers = await(await fetch('http://computers.ruilin.moe:3001/api/computers')).json()
     if ((typeof search === 'string' || search instanceof String)&& search){
         //valid string with stuff in it
         console.log("Search Attempted")
@@ -12,7 +12,7 @@ export async function get_computers(search = undefined){
 }
 
 export async function get_computer_by_id(id) {
-    const response = await fetch(`http://localhost:3001/api/computers/${id}`);
+    const response = await fetch(`http://computers.ruilin.moe:3001/api/computers/${id}`);
     if (!response.ok) {
         console.error(`Failed to fetch computer with ID ${id}: ${response.statusText}`);
         return undefined;
