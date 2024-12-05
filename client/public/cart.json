@@ -1,0 +1,30 @@
+{
+    "items": [
+        {
+            "computer_id": 1,
+            "name": "Dell XPS 15 2023",
+            "price": "390.99",
+            "quantity": 5,
+            "subtotal": 1954.95
+        },
+        {
+            "computer_id": 2,
+            "name": "Dell XPS 15 2021",
+            "price": "290.49",
+            "quantity": 3,
+            "subtotal": 871.47
+        },
+        {
+            "computer_id": 3,
+            "name": "MackBook Pro 2021",
+            "price": "1399.00",
+            "quantity": 3,
+            "subtotal": 4197
+        }
+    ],
+    "subtotal": 7023.42,
+    "tax": 913.0446000000001,
+    "shippingFees": 10,
+    "total": 7946.4646
+}
+
