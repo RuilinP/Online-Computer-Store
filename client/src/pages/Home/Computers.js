@@ -28,7 +28,9 @@ function Computers(search = undefined){
     let elements = []
     for (const computer of data){
         let id = computer.computer_id
-        let img_url = get_image_urls_by_computer_id(id)[0]
+        let img_url = computer.images && computer.images.length > 0 
+        ? `http://computers.ruilin.moe:3001${computer.images[0].image_path}`
+        : 'assets/default_image.png'; 
         elements.push(<div className='product_tile'>
             <img src={img_url} alt='Product Image Loading...'/>
             <h2>{computer.name}</h2>
