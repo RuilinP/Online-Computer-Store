@@ -52,13 +52,13 @@ function NavBar() {
     <Container>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav flex-grow-1">
-        <Nav className="d-flex flex-grow-1">
-          <Navbar.Brand href="#home">Name Placeholder</Navbar.Brand>
+        <Nav className="d-flex flex-grow-1 bar">
+          <Link to="/"><Navbar.Brand >Software Engineer's Computer Superstore</Navbar.Brand></Link>
           
           <Form inline className='flex-grow-1'>
             <div className="search">
               <i className="fa fa-search"></i>
-              <input type="text" class="form-control" placeholder="Have a question? Ask Now"/>
+              <input type="text" class="form-control"/>
               <button className="btn btn-primary">Search</button>
             </div>
           </Form>
