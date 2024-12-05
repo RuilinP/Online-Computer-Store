@@ -29,8 +29,8 @@ export async function logout(){
 export async function get_user(token){
     //return instance of User class (above) is sucessful undefined otherwise
     if(token){
-        let data = (await(await fetch("./user.json")).json).user
-        let cart = await(await fetch("./cart.json")).json
+        let data = (await(await fetch("./user.json")).json()).user
+        let cart = await(await fetch("./cart.json")).json()
         return new User(token, data, cart)
     }else{
         return undefined
@@ -40,7 +40,7 @@ export async function get_user(token){
 export async function get_user_data(token){
     //returns user object from backend if successful, undefined otherwise
     if(token){
-        return (await(await fetch("./user.json")).json).user
+        return (await(await fetch("./user.json")).json()).user
     }else{
         return undefined
     }

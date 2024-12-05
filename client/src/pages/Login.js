@@ -13,7 +13,7 @@ function Login() {
   const { user, setUser } = useContext(user_context);
   if (user) {
     //Redirect if logged in
-    return <Navigate replace to="/user"/>
+    return <Navigate replace to="/"/>
   }
 
   const handleSubmit = async (event) => {
@@ -27,7 +27,7 @@ function Login() {
     if (!result){
       alert("Username or Password Incorrect")
     }else{
-      setUser(get_user(result))
+      setUser(await get_user(result))
     }
   };
 

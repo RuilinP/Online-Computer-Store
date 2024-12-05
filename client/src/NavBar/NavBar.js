@@ -21,8 +21,11 @@ function LoginComponent(){
   }
 
   if (user){
+    let user_name = user.data.name
+    let greeting = `Hello ${user_name}`
+    console.log(user)
     return(
-      <NavDropdown title="Login Placeholder" id="basic-nav-dropdown">
+      <NavDropdown title={greeting} id="basic-nav-dropdown">
         <NavDropdown.Item>
           <NavLink to="/user">Preferences</NavLink>
         </NavDropdown.Item>
