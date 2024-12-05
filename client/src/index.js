@@ -13,6 +13,8 @@ import NoPage from './pages/NoPage.js'
 import Home from './pages/Home.js'
 import Login from './pages/Login.js'
 import User from './pages/User.js'
+import Cart from './pages/Cart.js';
+import Register from './pages/Register.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -27,6 +29,8 @@ function App(){
           <Route path="/" element={< Home/>}/>
           <Route path="login" element={< Login/>}/>
           <Route path="user" element={<User/>}/>
+          <Route path="cart" element={<Cart/>}/>
+          <Route path="register" element={<Register/>}/>
           <Route path="*" element = {< NoPage/>}/>
         </Routes>
       </BrowserRouter>

@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import { get_cart } from "./cart_model";
 
 //due to react state bullshitery, this can only be modified in react components. So these functions only worry about communication w server
 export const user_context = createContext(null);
@@ -30,7 +31,7 @@ export async function get_user(token){
     //return instance of User class (above) is sucessful undefined otherwise
     if(token){
         let data = (await(await fetch("./user.json")).json()).user
-        let cart = await(await fetch("./cart.json")).json()
+        let cart = await get_cart()
         return new User(token, data, cart)
     }else{
         return undefined
@@ -46,6 +47,3 @@ export async function get_user_data(token){
     }
 }
 
-export async function get_cart(token){
-
-}
