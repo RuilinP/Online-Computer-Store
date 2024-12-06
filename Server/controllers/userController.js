@@ -80,6 +80,7 @@ exports.updateUser = async (req, res) => {
         // Update fields if provided
         user.name = name || user.name;
         user.phone = phone || user.phone;
+        user.email = email || user.email;
         user.address = address || user.address;
         user.password = password || user.password; // This will trigger the `beforeUpdate` hook
         user.role = role || user.role;
