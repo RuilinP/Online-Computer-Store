@@ -12,6 +12,8 @@ import { Link, NavLink } from 'react-router-dom';
 import { logout, user_context } from "../models/user_model";
 import { useContext } from "react";
 
+import {useRef} from 'react';
+import { useNavigate } from "react-router-dom";
 
 function LoginComponent(){
   const { user, setUser } = useContext(user_context);
@@ -56,8 +58,13 @@ function CartComponent(){
 
 
 function NavBar() {
+  const inputRef = useRef(null);
+  let navigate = useNavigate();
 
-  
+  const handleSearch = () => {
+    let search = inputRef.current.value;
+    navigate(`/search/${search}`)
+  }
 
   return (
     <Navbar expand="lg" className="bg-body-tertiary justify-content-betweens">
@@ -70,8 +77,8 @@ function NavBar() {
           <Form inline className='flex-grow-1'>
             <div className="search">
               <i className="fa fa-search"></i>
-              <input type="text" class="form-control"/>
-              <button className="btn btn-primary">Search</button>
+              <input type="text" class="form-control" ref={inputRef}/>
+              <button className="btn btn-primary" onClick={handleSearch}>Search</button>
             </div>
           </Form>
           <LoginComponent/>
