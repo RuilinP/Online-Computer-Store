@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useContext } from "react";
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -15,13 +15,25 @@ import Cart from './pages/Cart.js';
 import Register from './pages/Register.js';
 import Computers from './pages/Computers.js';
 
+import { get_user } from "./models/user_model.js";
+import { UserContextProvider } from "./models/user_model.js";
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function App(){
-  const [user, setUser] = useState(undefined);
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+        get_user(token).then((userData) => {
+            if (userData) {
+                console.log("User loaded:", userData);
+            }
+        });
+    }
+}, []);
+
 
   return <div>
-    <user_context.Provider value={{user:user, setUser:setUser}}>
       <BrowserRouter>
         <NavBar />
         <Routes>
@@ -34,11 +46,14 @@ function App(){
           <Route path="*" element = {< NoPage/>}/>
         </Routes>
       </BrowserRouter>
-    </user_context.Provider>
   </div>
 }
 
-root.render( <App/>);
+root.render(
+  <UserContextProvider>
+      <App />
+  </UserContextProvider>
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 function LoginComponent(){
   const { user, setUser } = useContext(user_context);
+  console.log("User context in NavBar:", user);
 
   let logoutHandler = () =>{
     console.log('click')
@@ -25,8 +26,8 @@ function LoginComponent(){
   }
 
   if (user){
-    let user_name = user.data.name
-    let greeting = `Hello ${user_name}`
+    const userName = user?.name || "Guest";
+    let greeting = `Hello ${userName}`
     console.log(user)
     return(
       <NavDropdown title={greeting} id="basic-nav-dropdown">

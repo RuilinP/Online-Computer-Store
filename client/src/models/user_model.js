@@ -1,8 +1,40 @@
-import { createContext } from "react";
+import React, { createContext, useState, useEffect } from "react";
 import { get_cart } from "./cart_model";
 
-//due to react state bullshitery, this can only be modified in react components. So these functions only worry about communication w server
-export const user_context = createContext(null);
+
+export const user_context = createContext();
+
+export const UserContextProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+            fetch("https://computers.ruilin.moe/api/users/", {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    const loggedInUser = data.users.find(
+                        (user) => user.email === "rpeng25@uwo.ca" // Replace with dynamic logic
+                    );
+                    if (loggedInUser) {
+                        setUser(loggedInUser); 
+                    }
+                })
+                .catch((error) => console.error("Error restoring user context:", error));
+        }
+    }, []); 
+
+    return (
+        <user_context.Provider value={{ user, setUser }}>
+            {children}
+        </user_context.Provider>
+    );
+};
 
 export class User{
     constructor(token, data, cart) {

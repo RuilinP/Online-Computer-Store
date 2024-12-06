@@ -24,38 +24,43 @@ function Login() {
     let password = event.target.password.value;
     console.log(`Email:${email}, Pass:${password}`)
 
-    let token = await login(email,password);
+    const token = await login(email, password);
     if (!token) {
-      alert("Username or Password Incorrect");
-  } 
-  try {
-    const response = await fetch("https://computers.ruilin.moe/api/users/", {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${token}`,
-        },
-    });
-
-    if (response.ok) {
-        const { users } = await response.json();
-        const loggedInUser = users.find(user => user.email === email);
-        if (loggedInUser) {
-            const userData = await get_user(token, loggedInUser.id);
-            if (userData) {
-                setUser(userData);
-            } else {
-                alert("Failed to fetch user data after login.");
-            }
-        } else {
-            alert("User not found.");
-        }
-    } else {
-        alert("Failed to fetch users.");
+        alert("Username or Password Incorrect");
+        return;
     }
-} catch (error) {
-    console.error("Error fetching users:", error);
-    alert("An error occurred.");
-}
+
+    localStorage.setItem("authToken", token);
+
+
+    try {
+      const response = await fetch("https://computers.ruilin.moe/api/users/", {
+          method: "GET",
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+      });
+
+      if (response.ok) {
+          const data = await response.json();
+          console.log("All users:", data);
+          const loggedInUser = data.users.find((user) => user.email === email);
+
+          if (loggedInUser) {
+            console.log("Logged-in user:", loggedInUser);
+
+            setUser(loggedInUser);
+            alert("Login successful!");
+        } else {
+            alert("Logged-in user not found.");
+        }
+      } else {
+          console.error("Failed to fetch user info:", response.statusText);
+      }
+  } catch (error) {
+      console.error("Error fetching user info:", error);
+  }
+  
 
 
   };
