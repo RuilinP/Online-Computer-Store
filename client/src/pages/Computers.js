@@ -8,8 +8,11 @@ import { useParams } from "react-router";
 
 
 function Computers(){
-  let search = undefined
+  let search = useParams();
   const { user, setUser } = useContext(user_context);
+  if(search){
+    console.log(search);
+  }
 
     const handleAddToCart = (id) => {
       if (!user){
