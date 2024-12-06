@@ -5,6 +5,7 @@ import { user_context } from '../models/user_model';
 import { useContext } from 'react';
 import "./Computers/Computers.css"
 import { useParams } from "react-router";
+import { Link } from "react-router-dom";
 
 
 function Computers(){
@@ -50,8 +51,11 @@ function Computers(){
         ? `https://computers.ruilin.moe${computer.images[0].image_path}`
         : 'assets/default_image.png'; 
         elements.push(<div className='product_tile'>
+          
             <img src={img_url} alt='Product Image Loading...'/>
+            <Link to={`/computers/${id}`}>
             <h2>{computer.name}</h2>
+            </Link>
             <p>${computer.price.toFixed(2)} CAD</p>
             <button onClick={()=>{handleAddToCart(id)}}>
               Add To Cart
