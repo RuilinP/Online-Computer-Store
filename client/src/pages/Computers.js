@@ -1,10 +1,25 @@
-import { get_computers, get_image_urls_by_computer_id} from '../../models/computers_model'
-import { add_item_to_cart } from '../../models/cart_model';
+import { get_computers, get_image_urls_by_computer_id} from '../models/computers_model'
+import { add_item_to_cart } from '../models/cart_model';
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
-import "./Computers.css"
+import { user_context } from '../models/user_model';
+import { useContext } from 'react';
+import "./Computers/Computers.css"
+import { useParams } from "react-router";
 
-function Computers(search = undefined){
+
+function Computers(){
+  let search = undefined
+  const { user, setUser } = useContext(user_context);
+
+    const handleAddToCart = (id) => {
+      if (!user){
+        alert("Please log in to add items to your cart.");
+        return;
+      }
+
+      add_item_to_cart(user.token, id);
+      alert("Added to cart.")
+    }
     
     const [data, setData] = useState()
 
@@ -35,7 +50,7 @@ function Computers(search = undefined){
             <img src={img_url} alt='Product Image Loading...'/>
             <h2>{computer.name}</h2>
             <p>${computer.price.toFixed(2)} CAD</p>
-            <button onClick={()=>{add_item_to_cart(id)}}>
+            <button onClick={()=>{handleAddToCart(id)}}>
               Add To Cart
               <img src = "assets/shopping_cart_icon.svg"/>
             </button>

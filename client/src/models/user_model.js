@@ -12,6 +12,11 @@ export class User{
       }
 }
 
+export async function register(name,phone,email,address,password){
+    //return true or error string
+    return true
+}
+
 export async function login(email,pass){
     //returns token if sucessfull, or undefined if unsuccessful
 
@@ -28,7 +33,7 @@ export async function logout(){
 }
 
 export async function get_user(token){
-    //return instance of User class (above) is sucessful undefined otherwise
+    //return instance of User class (above) is successful undefined otherwise
     if(token){
         let data = (await(await fetch("./user.json")).json()).user
         let cart = await get_cart()
