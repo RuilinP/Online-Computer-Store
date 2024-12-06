@@ -24,12 +24,40 @@ function Login() {
     let password = event.target.password.value;
     console.log(`Email:${email}, Pass:${password}`)
 
-    let result = await login(email,password);
-    if (!result){
-      alert("Username or Password Incorrect")
-    }else{
-      setUser(await get_user(result))
+    let token = await login(email,password);
+    if (!token) {
+      alert("Username or Password Incorrect");
+  } 
+  try {
+    const response = await fetch("https://computers.ruilin.moe/api/users/", {
+        method: "GET",
+        headers: {
+            "Authorization": `Bearer ${token}`,
+        },
+    });
+
+    if (response.ok) {
+        const { users } = await response.json();
+        const loggedInUser = users.find(user => user.email === email);
+        if (loggedInUser) {
+            const userData = await get_user(token, loggedInUser.id);
+            if (userData) {
+                setUser(userData);
+            } else {
+                alert("Failed to fetch user data after login.");
+            }
+        } else {
+            alert("User not found.");
+        }
+    } else {
+        alert("Failed to fetch users.");
     }
+} catch (error) {
+    console.error("Error fetching users:", error);
+    alert("An error occurred.");
+}
+
+
   };
 
   return (

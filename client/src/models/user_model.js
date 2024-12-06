@@ -19,11 +19,28 @@ export async function register(name,phone,email,address,password){
 
 export async function login(email,pass){
     //returns token if sucessfull, or undefined if unsuccessful
+    if (!email || !pass) {
+        return undefined;
+    }
+    try {
+        const response = await fetch("https://computers.ruilin.moe/api/users/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password: pass }),
+        });
 
-    if (!pass){
-        return false
-    }else{
-        return "fake_token"
+        if (response.ok) {
+            const data = await response.json();
+            return data.token; 
+        } else {
+            console.error("Login failed:", response.statusText);
+            return undefined;
+        }
+    } catch (error) {
+        console.error("Error during login:", error);
+        return undefined;
     }
 }
 
@@ -32,16 +49,34 @@ export async function logout(){
     // return nothing
 }
 
-export async function get_user(token){
-    //return instance of User class (above) is successful undefined otherwise
-    if(token){
-        let data = (await(await fetch("./user.json")).json()).user
-        let cart = await get_cart()
-        return new User(token, data, cart)
-    }else{
-        return undefined
+export async function get_user(token, userId) {
+   
+    if (!token || !userId) {
+        return undefined;
+    }
+
+    try {
+        const response = await fetch(`https://computers.ruilin.moe/api/users/${userId}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            },
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const cart = await get_cart(); 
+            return new User(token, data, cart);
+        } else {
+            console.error("Failed to fetch user data:", response.statusText);
+            return undefined;
+        }
+    } catch (error) {
+        console.error("Error fetching user data:", error);
+        return undefined;
     }
 }
+
 
 export async function get_user_data(token){
     //returns user object from backend if successful, undefined otherwise
