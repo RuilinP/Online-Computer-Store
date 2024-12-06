@@ -6,6 +6,7 @@ const {
     updateUser,
     deleteUser,
     loginUser,
+    getLoggedInUser,
 } = require('../controllers/userController');
 
 const authenticateJWT = require('../middlewares/authMiddleware');
