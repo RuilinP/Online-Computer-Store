@@ -30,12 +30,13 @@ function Register() {
     let address = event.target.address.value;
     console.log(`Email:${email}, Pass:${password}, Name:${name}, Phone:${phone}, Address:${address}`)
 
-    let result = await register(name,phone,email,address,password);
-    if(result){
-      alert("Registration Successful \n Returning to Login")
-      navigate("/login")
-    }else{
-      alert(result);
+    let result = await register(name, phone, email, address, password, "buyer");
+    
+    if (result === true) {
+        alert("Registration Successful \n Returning to Login");
+        navigate("/login");
+    } else {
+        alert(result); 
     }
   };
 

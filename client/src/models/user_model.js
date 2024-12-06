@@ -44,10 +44,45 @@ export class User{
       }
 }
 
-export async function register(name,phone,email,address,password){
-    //return true or error string
-    return true
+export async function register(name, phone, email, address, password, role = "buyer") {
+    try {
+        const response = await fetch("https://computers.ruilin.moe/api/users/register", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name,
+                phone,
+                email,
+                address,
+                password,
+                role, 
+            }),
+        });
+
+        console.log(JSON.stringify({
+            name,
+            phone,
+            email,
+            address,
+            password,
+            role, 
+        }));
+
+        if (response.ok) {
+            const data = await response.json();
+            return true; 
+        } else {
+            const error = await response.json();
+            return error.message || "Registration failed"; 
+        }
+    } catch (error) {
+        console.error("Error during registration:", error);
+        return "An error occurred while registering.";
+    }
 }
+
 
 export async function login(email,pass){
     //returns token if sucessfull, or undefined if unsuccessful
