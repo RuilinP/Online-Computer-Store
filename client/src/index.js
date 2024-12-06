@@ -8,7 +8,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { useState } from 'react';
 import { user_context } from './models/user_model.js';
-
 import NoPage from './pages/NoPage.js'
 import Login from './pages/Login.js'
 import User from './pages/User.js'
