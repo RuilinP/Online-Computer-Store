@@ -34,7 +34,7 @@ function Login() {
 
 
     try {
-      const response = await fetch("https://computers.ruilin.moe/api/users/", {
+      const response = await fetch("https://computers.ruilin.moe/api/users/me", {
           method: "GET",
           headers: {
               Authorization: `Bearer ${token}`,
@@ -42,18 +42,9 @@ function Login() {
       });
 
       if (response.ok) {
-          const data = await response.json();
-          console.log("All users:", data);
-          const loggedInUser = data.users.find((user) => user.email === email);
-
-          if (loggedInUser) {
-            console.log("Logged-in user:", loggedInUser);
-
-            setUser(loggedInUser);
-            alert("Login successful!");
-        } else {
-            alert("Logged-in user not found.");
-        }
+          const userData = await response.json();
+          setUser(userData.user); 
+          alert("Login successful!");
       } else {
           console.error("Failed to fetch user info:", response.statusText);
       }
