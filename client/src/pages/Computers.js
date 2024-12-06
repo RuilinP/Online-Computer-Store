@@ -1,12 +1,14 @@
 import { get_computers, get_image_urls_by_computer_id} from '../models/computers_model'
 import { add_item_to_cart } from '../models/cart_model';
 import { useState, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
 import { user_context } from '../models/user_model';
 import { useContext } from 'react';
 import "./Computers/Computers.css"
+import { useParams } from "react-router";
 
-function Computers(search = undefined){
+
+function Computers(){
+  let search = undefined
   const { user, setUser } = useContext(user_context);
 
     const handleAddToCart = (id) => {
