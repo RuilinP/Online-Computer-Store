@@ -5,12 +5,14 @@ const computerRoutes = require('./routes/computerRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const sequelize = require('./config/db');
+const cors = require('cors');
 
 //Load env variales
 dotenv.config({ path: './config/config.env' });
 
 const app = express();
 
+app.use(cors());
 // Middleware 
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
