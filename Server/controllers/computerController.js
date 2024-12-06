@@ -82,9 +82,9 @@ exports.getAllComputers = async (req, res) => {
 exports.addNewComputer = async (req, res) => {
     const transaction = await Computer.sequelize.transaction();
     try {
-        const { model, name, category, address, specification, manufacturer, releaseDate, stockCode, popularity, price } = req.body;
+        const { model, name, category, address, specification, manufacturer, releaseDate, stock, popularity, price } = req.body;
 
-        if (!model || !name || !category || !stockCode) {
+        if (!model || !name || !category || !stock) {
             return res.status(400).json({ message: 'Model, name, category, and stockCode are required.' });
         }
 
@@ -92,10 +92,10 @@ exports.addNewComputer = async (req, res) => {
             return res.status(400).json({ message: 'Invalid price. Price must be a non-negative number.' });
         }
 
-        const existingComputer = await Computer.findOne({ where: { stockCode } });
-        if (existingComputer) {
-            return res.status(409).json({ message: `A computer with stockCode ${stockCode} already exists.` });
-        }
+        // const existingComputer = await Computer.findOne({ where: { stockCode } });
+        // if (existingComputer) {
+        //     return res.status(409).json({ message: `A computer with stockCode ${stockCode} already exists.` });
+        // }
 
         const newComputer = await Computer.create(
             {
@@ -106,7 +106,7 @@ exports.addNewComputer = async (req, res) => {
                 specification,
                 manufacturer,
                 releaseDate,
-                stockCode,
+                stock,
                 popularity,
                 price,
             },

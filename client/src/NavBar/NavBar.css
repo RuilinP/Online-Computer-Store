@@ -38,5 +38,8 @@
      height: 50px;
      width: 110px;
      background: blue;
+    }
 
+    .bar{
+        align-items: center;
     }
