@@ -25,6 +25,5 @@ router.delete('/:id', authenticateJWT, authorizeRole(['buyer', 'admin']), delete
 router.put('/updateCart/:id', authenticateJWT, authorizeRole(['buyer']), updateCartItem);
 router.delete('/removeItem/:id', authenticateJWT, authorizeRole(['buyer']), removeItem);
 router.delete('/clear', authenticateJWT, authorizeRole(['buyer']), removeAllItems);
-router.put('/stock', authenticateJWT, authorizeRole(['buyer']), updateStock);
 router.post('/checkout', authenticateJWT, authorizeRole(['buyer']), checkOut);
 module.exports = router;

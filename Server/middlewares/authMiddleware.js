@@ -10,11 +10,10 @@ const authMiddleware = (req, res, next) => {
     try {
         const user = jwt.verify(token, process.env.JWT_SECRET);
         req.user = user;
-
         next();
     } catch (error) {
+        return res.status(401).json({ message: 'Unauthorized: Invalid token' });
 
-        res.status(401).json({ message: 'Unauthorized: Invalid token' });
     }
 };
 
