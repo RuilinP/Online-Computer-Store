@@ -10,11 +10,11 @@ import { useState } from 'react';
 import { user_context } from './models/user_model.js';
 
 import NoPage from './pages/NoPage.js'
-import Home from './pages/Home.js'
 import Login from './pages/Login.js'
 import User from './pages/User.js'
 import Cart from './pages/Cart.js';
 import Register from './pages/Register.js';
+import Computers from './pages/Computers.js';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -26,7 +26,7 @@ function App(){
       <BrowserRouter>
         <NavBar />
         <Routes>
-          <Route path="/" element={< Home/>}/>
+          <Route path="/" element={< Computers/>}/>
           <Route path="login" element={< Login/>}/>
           <Route path="user" element={<User/>}/>
           <Route path="cart" element={<Cart/>}/>
