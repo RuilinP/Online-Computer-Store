@@ -4,8 +4,10 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import Form from 'react-bootstrap/Form';
 
+
 import './NavBar.css';
 import { Link, NavLink } from 'react-router-dom';
+
 
 import { logout, user_context } from "../models/user_model";
 import { useContext } from "react";
@@ -51,6 +53,7 @@ function CartComponent(){
     return undefined
   }
 }
+
 
 function NavBar() {
 

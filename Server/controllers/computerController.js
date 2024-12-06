@@ -1,14 +1,15 @@
 const Computer = require('../models/Computer');
-const Image = require('../models/Image'); 
+const Image = require('../models/Image');
 const { Op } = require('sequelize');
 
+// -----* Get computer by ID *-----
 exports.getComputerByIndex = async (req, res) => {
     try {
-        const { id } = req.params; 
+        const { id } = req.params;
 
         const computer = await Computer.findOne({
             where: { computer_id: id },
-            include: { model: Image, as: 'images' }, 
+            include: { model: Image, as: 'images' },
         });
 
         if (!computer) {
@@ -21,6 +22,7 @@ exports.getComputerByIndex = async (req, res) => {
     }
 };
 
+// -----* Get all computers *-----
 exports.getAllComputers = async (req, res) => {
     try {
         const { filter, sort, search, limit = 10, offset = 0 } = req.query;
@@ -59,13 +61,13 @@ exports.getAllComputers = async (req, res) => {
 
         const computers = await Computer.findAll({
             where: conditions,
-            include: { model: Image, as: 'images' }, 
+            include: { model: Image, as: 'images' },
             limit: parseInt(limit, 10),
             offset: parseInt(offset, 10),
             order,
         });
 
-        const total = computers.length; 
+        const total = computers.length;
         res.status(200).json({
             message: 'Computers retrieved successfully.',
             total,
@@ -76,7 +78,7 @@ exports.getAllComputers = async (req, res) => {
     }
 };
 
-
+// -----* Add new computer *-----
 exports.addNewComputer = async (req, res) => {
     const transaction = await Computer.sequelize.transaction();
     try {
@@ -111,7 +113,7 @@ exports.addNewComputer = async (req, res) => {
             { transaction }
         );
 
-        
+
 
         if (req.files && req.files.length > 0) {
             const imageRecords = req.files.map((file) => ({
@@ -131,13 +133,13 @@ exports.addNewComputer = async (req, res) => {
     }
 };
 
-
+// -----* Update computer *-----
 exports.updateComputer = async (req, res) => {
     const transaction = await Computer.sequelize.transaction();
     try {
-        const { id } = req.params; 
+        const { id } = req.params;
         const { removeImages = [] } = req.body;
-        const updateData = { ...req.body }; 
+        const updateData = { ...req.body };
 
         const computer = await Computer.findOne({ where: { computer_id: id } });
         if (!computer) {
@@ -147,9 +149,9 @@ exports.updateComputer = async (req, res) => {
         if (updateData.price && (isNaN(updateData.price) || updateData.price < 0)) {
             return res.status(400).json({ message: 'Invalid price. Price must be a non-negative number.' });
         }
-        
 
-        delete updateData.removeImages; 
+
+        delete updateData.removeImages;
         await computer.update(updateData, { transaction });
 
         if (Array.isArray(removeImages) && removeImages.length > 0) {
@@ -174,7 +176,7 @@ exports.updateComputer = async (req, res) => {
 
         const updatedComputer = await Computer.findOne({
             where: { computer_id: id },
-            include: { model: Image, as: 'images' }, 
+            include: { model: Image, as: 'images' },
         });
 
         res.status(200).json({
@@ -187,7 +189,7 @@ exports.updateComputer = async (req, res) => {
     }
 };
 
-
+// -----* Delete Computer *-----
 exports.deleteComputer = async (req, res) => {
     try {
         const { id } = req.params;
