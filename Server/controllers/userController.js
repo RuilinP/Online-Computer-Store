@@ -70,7 +70,7 @@ exports.getLoggedInUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone, address, password, role } = req.body;
+        const { name, phone, email, address, password, role } = req.body;
         const user = await User.findByPk(id);
 
         if (!user) {
