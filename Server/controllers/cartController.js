@@ -6,56 +6,56 @@ const OrderItem = require('../models/OrderItem');
 const Order = require('../models/Order');
 
 
-//Create a cart
+// -----* Create a cart *-----
 exports.createCart = async (req, res, next) => {
 
     try {
-        const user_id = req.user.id;
+        const user_id = req.user.id; //user id instance
         const cart = await Cart.create({ user_id });
 
         res.status(201).json({ message: 'Cart created Successfully.', cart });
     } catch (error) {
-
         next(error); //pass error to error handler in app.js
     }
 };
 
-// Add an item to the cart
+// -----* Add an item to cart *-----
 exports.addItemToCart = async (req, res, next) => {
+    // fetching information from the request body
     const { cart_id, computer_id, quantity } = req.body;
-    const quantityN = Number(quantity);
+    // Implement transaction for data integrity: all succeed or rollback
     const transaction = await sequelize.transaction();
     try {
         const computer = await Computer.findByPk(computer_id, { transaction });
         if (!computer || computer.stock < quantity) {
             return res.status(400).json({ message: `Computer with Id ${computer_id} is out of stock` });
         }
+
         const existingItem = await CartItem.findOne({ where: { cart_id, computer_id }, transaction });
-        // Validate item exist
-
+        // Validate item existing in the cartItem
         if (existingItem) {
-            const quantityUpdated = Number(existingItem.quantity) + quantityN;
+            const quantityUpdated = Number(existingItem.quantity) + Number(quantity);
+            //update the quantity in the cartItem
             await existingItem.update({ quantity: quantityUpdated }, { transaction });
-
         } else {
+            // if the item do not exist in the cartItem, add item to the cart
             await CartItem.create({ cart_id, computer_id, quantity }, { transaction });
         }
 
-        await transaction.commit();
+        await transaction.commit(); //commit changes
         const cartItemUpdates = await CartItem.findAll({ where: { cart_id }, });
         res.status(201).json({ message: 'Item added succsefully', cartItemUpdates });
     } catch (error) {
-        await transaction.rollback();
+        await transaction.rollback(); // do not make changes to db if there is an error
         next(error); //pass error to error handler in app.js
     }
 };
 
 
-
-// View cart with items
+// -----* View cart with items *-----
 exports.viewCart = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params; // Extracting id from route parametrs in the URL path
         const cart = await Cart.findOne({
             where: { cart_id: id },
             include: [
@@ -66,7 +66,7 @@ exports.viewCart = async (req, res, next) => {
                         {
                             model: Computer,
                             as: 'computer',
-                            attributes: ['computer_id', 'model', 'name', 'price'], // limit 
+                            attributes: ['computer_id', 'model', 'name', 'price'], // limit the returned computers 
                         }],
                 }],
         });
@@ -107,7 +107,7 @@ exports.viewCart = async (req, res, next) => {
     }
 };
 
-// Delete a cart
+// -----* Delete a cart *-----
 exports.deleteCart = async (req, res, next) => {
     try {
         const { id } = req.params;
@@ -125,7 +125,7 @@ exports.deleteCart = async (req, res, next) => {
     }
 };
 
-// Update cart items
+// -----* Update cart items *-----
 exports.updateCartItem = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
@@ -147,17 +147,14 @@ exports.updateCartItem = async (req, res, next) => {
         await item.save({ transaction });
         await transaction.commit();
         res.status(200).json({ message: `CartItem with ID ${id} updated successfully.` })
-
     } catch (error) {
         await transaction.rollback();
         next(error); //pass error to error handler in app.js
     }
 };
 
-//remove item from cart
+// -----*remove item from cart *-----
 exports.removeItem = async (req, res, next) => {
-
-
     try {
         const { id } = req.params; //extract user id for the url
         const item = await CartItem.findByPk(id);
@@ -167,30 +164,27 @@ exports.removeItem = async (req, res, next) => {
 
         await item.destroy();
 
-        res.status(200).json({ message: `Cart Item with ID ${id} removed successfully.` })
+        res.status(200).json({ message: `Item with ID ${id} removed from the cart successfully.` })
     } catch (error) {
 
-        next();
+        next(error);
     }
 };
 
+// -----*remove all items from cart *-----
 exports.removeAllItems = async (req, res, next) => {
-
     const transaction = await sequelize.transaction();
-
     try {
-        const { id: user_id } = req.user;
         const { cart_id } = req.body;
-
+        console.log('Cart ID: ', req.body);
         if (!cart_id) {
-            return res.status(404).json({ message: `cart not found.` });
-        }
+            return res.status(404).json({ message: `cart id is required.` });
 
+        }
         const cart = await Cart.findOne({ where: { cart_id }, transaction });
         if (!cart) {
             return res.status(404).json({ message: `cart not found.` });
         }
-
         const items = await CartItem.findAll({ where: { cart_id }, transaction });
         if (!items || items.lenght === 0) {
             return res.status(404).json({ message: `Cart is empty.` });
@@ -203,10 +197,11 @@ exports.removeAllItems = async (req, res, next) => {
         res.status(200).json({ message: `CartItems removed successfully.` })
     } catch (error) {
         await transaction.rollback();
-        next();
+        next(error);
     }
 };
 
+// -----* Update stock *-----
 exports.updateStock = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
@@ -226,29 +221,50 @@ exports.updateStock = async (req, res) => {
         res.status(200).json({ message: `CartItems removed successfully.` })
     } catch (error) {
         await transaction.rollback();
-        next();
+        next(error);
     }
 };
 
+// -----* Checkout *-----
 exports.checkOut = async (req, res, next) => {
     console.log("Check the method checkout");
+    const transaction = await sequelize.transaction();
     try {
-        const cart = await Cart.findOne({ where: { user_id: req.user.id }, include: { model: CartItem, as: "items", include: [{ model: Computer, as: 'computer' }] } });
+        const cart = await Cart.findOne({
+            where: { user_id: req.user.id },
+            include: {
+                model: CartItem, as: "items", include: [{ model: Computer, as: 'computer' }]
+            },
+            transaction,
+        });
 
         if (!cart || cart.items.length === 0) {
+            await transaction.rollback();
             return res.status(400).json({ erro: "The Cart is Empty" });
         }
+
         const subtotal = cart.items.reduce((acc, item) => acc + (item.computer.price * item.quantity), 0);
         const saleTaxRate = 0.13;
-        const tax = subtotal * saleTaxRate;
+        const tax = (subtotal * saleTaxRate).DECIMAL(10, 1);
         const shippingFees = 10;
         const total = subtotal + tax + shippingFees;
+
+        for (const item of cart.items) {
+            if (item.computer.stock < item.quantity) {
+                await transaction.rollback();
+                return res.status(400).json({ error: 'Insufficient quantity for this product' });
+            }
+            item.computer.stock -= item.quantity;
+            await item.computer.save({ transaction });
+        }
 
         const order = await Order.create({
             user_id: req.user.id,
             total_price: total,
             status: "pending",
-        });
+        },
+            { transaction }
+        );
 
         const orderItems = cart.items.map((item) => ({
             order_id: order.order_id,
@@ -258,12 +274,14 @@ exports.checkOut = async (req, res, next) => {
             quantity: item.quantity,
         }));
 
-        await OrderItem.bulkCreate(orderItems);
+        await OrderItem.bulkCreate(orderItems, { transaction });
 
-        await CartItem.destroy({ where: { cart_id: cart.cart_id } });
+        await CartItem.destroy({ where: { cart_id: cart.cart_id }, transaction });
+        await transaction.commit();
         res.status(200).json({ message: `Checkout successfully.`, order })
     } catch (error) {
+        await transaction.rollback();
         console.error("Error during checkout:", error);
-        next();
+        next(error);
     }
 };
