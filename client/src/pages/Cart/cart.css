@@ -1,0 +1,21 @@
+.empty{
+    text-align: center;
+}
+
+.items{
+    margin: auto;
+    margin-top: 2rem;
+    width: 50%;
+    min-width: fit-content;
+}
+
+.totals{
+    margin: auto;
+    margin-top: 2rem;
+    width: 30%;
+    min-width: fit-content;
+}
+
+.cartPage{
+    text-align: center;
+}

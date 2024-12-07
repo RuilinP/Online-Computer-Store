@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { createContext, useState, useEffect } from "react";
 import { get_cart } from "./cart_model";
 
@@ -37,10 +38,20 @@ export const UserContextProvider = ({ children }) => {
 };
 
 export class User {
+=======
+import { createContext } from "react";
+import { get_cart } from "./cart_model";
+
+//due to react state bullshitery, this can only be modified in react components. So these functions only worry about communication w server
+export const user_context = createContext(null);
+
+export class User{
+>>>>>>> origin
     constructor(token, data, cart) {
         this.token = token;
         this.data = data;
         this.cart = cart;
+<<<<<<< HEAD
     }
 }
 
@@ -112,10 +123,32 @@ export async function login(email, pass) {
 }
 
 export async function logout() {
+=======
+      }
+}
+
+export async function register(name,phone,email,address,password){
+    //return true or error string
+    return true
+}
+
+export async function login(email,pass){
+    //returns token if sucessfull, or undefined if unsuccessful
+
+    if (!pass){
+        return false
+    }else{
+        return "fake_token"
+    }
+}
+
+export async function logout(){
+>>>>>>> origin
     //clearing of user data isn't done here, but you can contact server if you need to
     // return nothing
 }
 
+<<<<<<< HEAD
 export async function get_user(token, userId) {
 
     if (!token || !userId) {
@@ -153,3 +186,25 @@ export async function get_user_data(token) {
         return undefined
     }
 }
+=======
+export async function get_user(token){
+    //return instance of User class (above) is successful undefined otherwise
+    if(token){
+        let data = (await(await fetch("./user.json")).json()).user
+        let cart = await get_cart()
+        return new User(token, data, cart)
+    }else{
+        return undefined
+    }
+}
+
+export async function get_user_data(token){
+    //returns user object from backend if successful, undefined otherwise
+    if(token){
+        return (await(await fetch("./user.json")).json()).user
+    }else{
+        return undefined
+    }
+}
+
+>>>>>>> origin

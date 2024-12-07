@@ -13,11 +13,9 @@ dotenv.config({ path: './config/config.env' });
 const app = express();
 app.use(cors());
 
+app.use(cors());
 // Middleware 
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
-
-
 app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {

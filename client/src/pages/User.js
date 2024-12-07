@@ -1,11 +1,11 @@
 import { Navigate } from 'react-router-dom';
-import { useContext } from 'react';
-import { IsLoggedInContext } from '../context';
+import { user_context } from "../models/user_model";
+import { useContext } from "react";
 
 function User() {
-  const isLoggedIn = useContext(IsLoggedInContext);
-  if (!isLoggedIn) {
-    // redirect if not logged in
+  const { user, setUser } = useContext(user_context);
+  if (!user) {
+    //Redirect if not logged in
     return <Navigate replace to="/login"/>
   }
 

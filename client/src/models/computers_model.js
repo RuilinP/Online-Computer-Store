@@ -1,4 +1,5 @@
 //TODO, replace local access w backend access
+<<<<<<< HEAD
 import axios from "axios";
 
 export const create_computer = async (formData) => {
@@ -42,6 +43,22 @@ export const get_computers = async (params) => {
 
 export async function get_computer_by_id(id) {
     const response = await fetch(`https://computers.ruilin.moe/api/computers/${id}`);
+=======
+
+
+export async function get_computers(search = undefined){
+    let computers = await(await fetch('/api/computers')).json()
+    if ((typeof search === 'string' || search instanceof String)&& search){
+        //valid string with stuff in it
+        console.log("Search Attempted")
+    }
+    console.log(computers)
+    return computers.computers
+}
+
+export async function get_computer_by_id(id) {
+    const response = await fetch(`/api/computers/${id}`);
+>>>>>>> origin
     if (!response.ok) {
         console.error(`Failed to fetch computer with ID ${id}: ${response.statusText}`);
         return undefined;
@@ -51,6 +68,7 @@ export async function get_computer_by_id(id) {
 }
 
 
+<<<<<<< HEAD
 export function get_image_urls_by_computer_id(id) {
     //return url's for all images associated with this computer
     return [""]
@@ -86,3 +104,9 @@ export const update_computer = async (id, formData) => {
         throw error;
     }
 };
+=======
+export function get_image_urls_by_computer_id(id){
+    //return url's for all images associated with this computer
+    return [""]
+}
+>>>>>>> origin
