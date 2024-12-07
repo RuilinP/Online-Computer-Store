@@ -73,7 +73,7 @@ const Cart = () => {
 
             if (response.ok) {
                 const result = await response.json();
-                alert(`Checkout successful! Order ID: ${result.order_id}`);
+                alert(`Checkout successful!`);
                 setCart(null); // Clear the cart on successful checkout
             } else {
                 const error = await response.json();
