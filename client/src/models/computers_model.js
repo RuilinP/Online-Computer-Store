@@ -1,15 +1,23 @@
 //TODO, replace local access w backend access
 
 
-export async function get_computers(search = undefined){
-    let computers = await(await fetch('https://computers.ruilin.moe/api/computers')).json()
-    if ((typeof search === 'string' || search instanceof String)&& search){
-        //valid string with stuff in it
-        console.log("Search Attempted")
+export const get_computers = async (params) => {
+    const queryString = new URLSearchParams(params).toString();
+    const url = `https://computers.ruilin.moe/api/computers?${queryString}`;
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Error fetching computers: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data.computers;
+    } catch (error) {
+        console.error(error);
+        return [];
     }
-    console.log(computers)
-    return computers.computers
-}
+};
+
 
 export async function get_computer_by_id(id) {
     const response = await fetch(`https://computers.ruilin.moe/api/computers/${id}`);

@@ -43,7 +43,7 @@ function App(){
           <Route path="user" element={<User/>}/>
           <Route path="cart" element={<Cart/>}/>
           <Route path="register" element={<Register/>}/>
-          <Route path="search/:searchTerm" element={<Computers/>}/>
+          <Route path="search/:search" element={<Computers />} /> 
           <Route path="computers/:id" element={<ComputerDetail />} /> 
           <Route path="*" element = {< NoPage/>}/>
         </Routes>

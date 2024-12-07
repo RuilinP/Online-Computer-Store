@@ -60,35 +60,43 @@ function CartComponent(){
 
 function NavBar() {
   const inputRef = useRef(null);
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleSearch = () => {
-    let search = inputRef.current.value;
-    navigate(`/search/${search}`)
-  }
+      const search = inputRef.current.value;
+      navigate(`/search/${search}`);
+  };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary justify-content-betweens">
-    <Container>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav flex-grow-1">
-        <Nav className="d-flex flex-grow-1 bar">
-          <Link to="/"><Navbar.Brand >Software Engineer's Computer Superstore</Navbar.Brand></Link>
-          
-          <Form inline className='flex-grow-1'>
-            <div className="search">
-              <i className="fa fa-search"></i>
-              <input type="text" class="form-control" ref={inputRef}/>
-              <button className="btn btn-primary" onClick={handleSearch}>Search</button>
-            </div>
-          </Form>
-          <LoginComponent/>
-          <CartComponent/>
-        </Nav>
-      </Navbar.Collapse>
-    </Container>
-  </Navbar>
+      <Navbar expand="lg" className="bg-body-tertiary justify-content-between">
+          <Container>
+              <Navbar.Toggle aria-controls="basic-navbar-nav" />
+              <Navbar.Collapse id="basic-navbar-nav">
+                  <Nav className="d-flex flex-grow-1 bar">
+                      <Link to="/">
+                          <Navbar.Brand>Software Engineer's Computer Superstore</Navbar.Brand>
+                      </Link>
+                      <Form inline className="flex-grow-1">
+                          <div className="search">
+                              <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Search"
+                                  ref={inputRef}
+                              />
+                              <button className="btn btn-primary" onClick={handleSearch}>
+                                  Search
+                              </button>
+                          </div>
+                      </Form>
+                      <LoginComponent />
+                      <CartComponent />
+                  </Nav>
+              </Navbar.Collapse>
+          </Container>
+      </Navbar>
   );
 }
+
 
 export default NavBar;
