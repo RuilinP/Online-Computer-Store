@@ -20,13 +20,14 @@ Computer.init(
             type: DataTypes.STRING(100),
             allowNull: false,
         },
+        sku: {
+            type: DataTypes.STRING,
+            unique: true,
+            required: true,
+        },
         category: {
             type: DataTypes.STRING(100),
             allowNull: false,
-        },
-        address: {
-            type: DataTypes.TEXT,
-            allowNull: true,
         },
         specification: {
             type: DataTypes.TEXT,
