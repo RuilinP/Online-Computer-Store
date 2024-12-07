@@ -71,9 +71,9 @@ exports.addItemToCart = async (req, res, next) => {
 // -----* View cart with items *-----
 exports.viewCart = async (req, res, next) => {
     try {
-        const { id } = req.params; // Extracting id from route parametrs in the URL path
+        // Fetch the cart using the authenticated user's ID
         const cart = await Cart.findOne({
-            where: { cart_id: id },
+            where: { user_id: req.user.id },
             include: [
                 {
                     model: CartItem,
@@ -82,17 +82,19 @@ exports.viewCart = async (req, res, next) => {
                         {
                             model: Computer,
                             as: 'computer',
-                            attributes: ['computer_id', 'model', 'name', 'price'], // limit the returned computers 
-                        }],
-                }],
+                            attributes: ['computer_id', 'model', 'name', 'price'], // Limit returned fields
+                        }
+                    ],
+                }
+            ],
         });
 
         if (!cart) {
-            return res.status(404).json({ message: `Cart with Id ${id} not found` });
+            return res.status(404).json({ message: `Cart not found for user.` });
         }
 
         let subtotal = 0;
-        cart.items.forEach(item => {
+        cart.items.forEach((item) => {
             if (item.computer) {
                 subtotal += item.quantity * item.computer.price;
             }
@@ -103,9 +105,8 @@ exports.viewCart = async (req, res, next) => {
         const shippingFees = 10;
         const total = subtotal + tax + shippingFees;
 
-
         res.json({
-            items: cart.items.map(item => ({
+            items: cart.items.map((item) => ({
                 id: item.id,
                 computer_id: item.computer_id,
                 name: item.computer.name,
@@ -119,73 +120,103 @@ exports.viewCart = async (req, res, next) => {
             total,
         });
     } catch (error) {
-        next(error); //pass error to error handler in app.js
+        next(error); // Pass error to error handler
     }
 };
+
 
 // -----* Delete a cart *-----
 exports.deleteCart = async (req, res, next) => {
-    try {
-        const { id } = req.params;
-        const cart = await Cart.findOne({ where: { cart_id: id } });
-
-        if (!cart) {
-            return res.status(404).json({ message: `Cart with Id ${id} not found.` });
-        }
-
-        await cart.destroy();
-
-        res.status(200).json({ message: `Cart with ID ${id} deleted successfully.` });
-    } catch (error) {
-        next(error); //pass error to error handler in app.js
-    }
-};
-
-// -----* Update cart items *-----
-exports.updateCartItem = async (req, res, next) => {
     const transaction = await sequelize.transaction();
     try {
-        const { id } = req.params;
-        const { computer_id, quantity } = req.body;
-        const item = await CartItem.findByPk(id);
-
-        if (!item) {
-            return res.status(404).json({ message: `Item with Id ${id} not found.` });
-        }
-        const computer = await Computer.findByPk(item.computer_id);
-        if (!computer || computer.stock < quantity) {
-            return res.status(400).json({ message: `Computer with Id ${computer_id} is out of stock` });
+        // Find the cart for the authenticated user
+        const cart = await Cart.findOne({ where: { user_id: req.user.id } });
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found for user." });
         }
 
+        // Delete all items and the cart itself
+        await CartItem.destroy({ where: { cart_id: cart.cart_id }, transaction });
+        await cart.destroy({ transaction });
 
-        item.quantity = quantity;
-
-        await item.save({ transaction });
         await transaction.commit();
-        res.status(200).json({ message: `CartItem with ID ${id} updated successfully.` })
+        res.status(200).json({ message: "Cart deleted successfully." });
     } catch (error) {
         await transaction.rollback();
-        next(error); //pass error to error handler in app.js
-    }
-};
-
-// -----*remove item from cart *-----
-exports.removeItem = async (req, res, next) => {
-    try {
-        const { id } = req.params; //extract user id for the url
-        const item = await CartItem.findByPk(id);
-        if (!item) {
-            return res.status(404).json({ message: `Item with Id ${id} not found.` });
-        }
-
-        await item.destroy();
-
-        res.status(200).json({ message: `Item with ID ${id} removed from the cart successfully.` })
-    } catch (error) {
-
         next(error);
     }
 };
+
+
+// -----* Update cart items *-----
+exports.updateCart = async (req, res, next) => {
+    const { items } = req.body; // Expecting an array of { computer_id, quantity }
+    const transaction = await sequelize.transaction();
+
+    try {
+        // Find the cart for the authenticated user
+        const cart = await Cart.findOne({ where: { user_id: req.user.id } });
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found for user." });
+        }
+
+        for (const item of items) {
+            const { computer_id, quantity } = item;
+
+            // Check stock availability
+            const computer = await Computer.findByPk(computer_id, { transaction });
+            if (!computer || computer.stock < quantity) {
+                return res.status(400).json({
+                    message: `Insufficient stock for computer ID ${computer_id}.`,
+                });
+            }
+
+            // Update the cart item or create a new one
+            const cartItem = await CartItem.findOne({ where: { cart_id: cart.cart_id, computer_id }, transaction });
+            if (cartItem) {
+                await cartItem.update({ quantity }, { transaction });
+            } else {
+                await CartItem.create({ cart_id: cart.cart_id, computer_id, quantity }, { transaction });
+            }
+        }
+
+        await transaction.commit();
+        res.status(200).json({ message: "Cart updated successfully." });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
+
+// -----*remove item from cart *-----
+exports.removeItem = async (req, res, next) => {
+    const { computer_id } = req.body;
+
+    const transaction = await sequelize.transaction();
+    try {
+        // Find the cart for the authenticated user
+        const cart = await Cart.findOne({ where: { user_id: req.user.id } });
+        if (!cart) {
+            return res.status(404).json({ message: "Cart not found for user." });
+        }
+
+        // Remove the item from the cart
+        const cartItem = await CartItem.findOne({ where: { cart_id: cart.cart_id, computer_id }, transaction });
+        if (!cartItem) {
+            return res.status(404).json({ message: `Item with computer ID ${computer_id} not found in cart.` });
+        }
+
+        await cartItem.destroy({ transaction });
+        await transaction.commit();
+
+        res.status(200).json({ message: "Item removed from cart successfully." });
+    } catch (error) {
+        await transaction.rollback();
+        next(error);
+    }
+};
+
 
 // -----*remove all items from cart *-----
 exports.removeAllItems = async (req, res, next) => {

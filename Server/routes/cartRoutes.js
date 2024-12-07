@@ -4,7 +4,7 @@ const {
     addItemToCart,
     viewCart,
     deleteCart,
-    updateCartItem,
+    updateCart,
     removeItem,
     removeAllItems,
     updateStock,
@@ -20,10 +20,10 @@ const router = express.Router();
 
 router.post('/create', authenticateJWT, authorizeRole(['buyer']), createCart);  // Create new cart
 router.post("/addItem", authenticateJWT, addItemToCart);  // Add Item to cart
-router.get('/:id', authenticateJWT, authorizeRole(['buyer', 'admin']), viewCart);    // View cart with items
-router.delete('/:id', authenticateJWT, authorizeRole(['buyer', 'admin']), deleteCart); // Delete a cart
-router.put('/updateCart/:id', authenticateJWT, authorizeRole(['buyer']), updateCartItem);
-router.delete('/removeItem/:id', authenticateJWT, authorizeRole(['buyer']), removeItem);
+router.get('/view', authenticateJWT, authorizeRole(['buyer', 'admin']), viewCart);    // View cart with items
+router.delete("/delete", authenticateJWT, deleteCart); // Delete a cart
+router.put("/update", authenticateJWT, updateCart);
+router.post("/removeItem", authenticateJWT, removeItem);
 router.delete('/clear', authenticateJWT, authorizeRole(['buyer']), removeAllItems);
 router.post('/checkout', authenticateJWT, authorizeRole(['buyer']), checkOut);
 module.exports = router;
