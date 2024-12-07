@@ -29,16 +29,21 @@ function LoginComponent(){
     const userName = user?.name || "Guest";
     let greeting = `Hello ${userName}`
     console.log(user)
-    return(
+    return (
       <NavDropdown title={greeting} id="basic-nav-dropdown">
-        <NavDropdown.Item>
-          <NavLink to="/user">Preferences</NavLink>
-        </NavDropdown.Item>
-        <NavDropdown.Item onClick={logoutHandler}>
-          Logout
-        </NavDropdown.Item>
+          <NavDropdown.Item>
+              <NavLink to="/user">Preferences</NavLink>
+          </NavDropdown.Item>
+          {user?.role === "admin" && (
+              <NavDropdown.Item>
+                  <NavLink to="/products">Manage Products</NavLink>
+              </NavDropdown.Item>
+          )}
+          <NavDropdown.Item onClick={logoutHandler}>
+              Logout
+          </NavDropdown.Item>
       </NavDropdown>
-    )
+  );
   }else{
     return(
       <NavLink to="/login" end>

@@ -34,3 +34,34 @@ export function get_image_urls_by_computer_id(id){
     //return url's for all images associated with this computer
     return [""]
 }
+
+export const update_computer = async (id, formData) => {
+    try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            throw new Error("User is not authenticated. No token found.");
+        }
+
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}:`, value);
+        }
+
+        const response = await fetch(`https://computers.ruilin.moe/api/computers/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`, 
+            },
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error updating computer: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.computer;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};

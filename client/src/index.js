@@ -15,6 +15,7 @@ import Cart from './pages/Cart.js';
 import Register from './pages/Register.js';
 import Computers from './pages/Computers.js';
 import ComputerDetail from './pages/ComputerDetail.js';
+import ProductManager from './pages/ProductManagement.js';
 
 import { get_user } from "./models/user_model.js";
 import { UserContextProvider } from "./models/user_model.js";
@@ -46,6 +47,7 @@ function App(){
           <Route path="search/:search" element={<Computers />} /> 
           <Route path="computers/:id" element={<ComputerDetail />} /> 
           <Route path="*" element = {< NoPage/>}/>
+          <Route path="/products" element={<ProductManager />} />
         </Routes>
       </BrowserRouter>
   </div>
