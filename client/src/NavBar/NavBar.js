@@ -35,10 +35,17 @@ function LoginComponent(){
               <NavLink to="/user">Preferences</NavLink>
           </NavDropdown.Item>
           {user?.role === "admin" && (
+              <>
               <NavDropdown.Item>
                   <NavLink to="/products">Manage Products</NavLink>
               </NavDropdown.Item>
+              <NavDropdown.Item>
+                  <NavLink to="/orders">Manage Orders</NavLink> {/* Add this */}
+              </NavDropdown.Item>
+          </>
+      
           )}
+
           <NavDropdown.Item onClick={logoutHandler}>
               Logout
           </NavDropdown.Item>
