@@ -1,4 +1,25 @@
 //TODO, replace local access w backend access
+import axios from "axios";
+
+export const create_computer = async (formData) => {
+    const config = {
+        headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+    };
+
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+    }
+
+    const response = await axios.post(
+        "https://computers.ruilin.moe/api/computers/",
+        formData,
+        config
+    );
+    return response.data;
+};
 
 
 export const get_computers = async (params) => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { get_computers, update_computer } from "../models/computers_model";
+import { get_computers, update_computer, create_computer } from "../models/computers_model";
 import "./ProductManager.css";
 
 function ProductManager() {
@@ -19,6 +19,19 @@ function ProductManager() {
         setSelectedComputer(computer);
     };
 
+    const handleCreateNew = () => {
+        setSelectedComputer({
+            model: "",
+            name: "",
+            category: "",
+            address: "",
+            specification: "",
+            manufacturer: "",
+            releaseDate: "",
+            price: "",
+        });
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setSelectedComputer((prev) => ({ ...prev, [name]: value }));
@@ -28,37 +41,36 @@ function ProductManager() {
         e.preventDefault();
         try {
             const formData = new FormData();
-    
-            const excludedFields = ["stock", "popularity"];
-    
+
+            const excludedFields = ["popularity"];
             Object.keys(selectedComputer).forEach((key) => {
-                if (!excludedFields.includes(key) && selectedComputer[key] !== undefined && selectedComputer[key] !== null) {
+                if (!excludedFields.includes(key)) {
                     formData.append(key, selectedComputer[key]);
                 }
             });
-    
+
             const fileInput = e.target.elements.images;
             if (fileInput?.files.length > 0) {
                 Array.from(fileInput.files).forEach((file) => {
                     formData.append("images", file);
                 });
             }
-    
-            console.log("FormData before PUT:");
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}:`, value);
+
+            if (selectedComputer.computer_id) {
+                await update_computer(selectedComputer.computer_id, formData);
+                alert("Computer updated successfully!");
+            } else {
+                await create_computer(formData);
+                alert("New computer created successfully!");
             }
-    
-            const result = await update_computer(selectedComputer.computer_id, formData);
-            alert("Computer updated successfully!");
+
             fetchComputers();
+            setSelectedComputer(null);
         } catch (error) {
-            console.error("Error updating computer:", error);
-            alert("Failed to update the computer.");
+            console.error("Error submitting computer:", error);
+            alert("Failed to submit the computer.");
         }
     };
-    
-    
 
     useEffect(() => {
         fetchComputers();
@@ -68,6 +80,7 @@ function ProductManager() {
         <div className="product-manager">
             <div className="product-list">
                 <h2>Products</h2>
+                <button onClick={handleCreateNew}>+ New Computer</button>
                 {computers.map((computer) => (
                     <div
                         key={computer.computer_id}
@@ -80,9 +93,18 @@ function ProductManager() {
                 ))}
             </div>
             <div className="product-form">
-                <h2>Update Product</h2>
+                <h2>{selectedComputer?.computer_id ? "Update Product" : "Create New Product"}</h2>
                 {selectedComputer ? (
                     <form onSubmit={handleSubmit}>
+                        <label>
+                            Model:
+                            <input
+                                type="text"
+                                name="model"
+                                value={selectedComputer.model}
+                                onChange={handleInputChange}
+                            />
+                        </label>
                         <label>
                             Name:
                             <input
@@ -102,15 +124,6 @@ function ProductManager() {
                             />
                         </label>
                         <label>
-                            Price:
-                            <input
-                                type="number"
-                                name="price"
-                                value={selectedComputer.price}
-                                onChange={handleInputChange}
-                            />
-                        </label>
-                        <label>
                             Address:
                             <input
                                 type="text"
@@ -118,6 +131,14 @@ function ProductManager() {
                                 value={selectedComputer.address}
                                 onChange={handleInputChange}
                             />
+                        </label>
+                        <label>
+                            Specification:
+                            <textarea
+                                name="specification"
+                                value={selectedComputer.specification}
+                                onChange={handleInputChange}
+                            ></textarea>
                         </label>
                         <label>
                             Manufacturer:
@@ -133,18 +154,39 @@ function ProductManager() {
                             <input
                                 type="date"
                                 name="releaseDate"
-                                value={selectedComputer.releaseDate.split("T")[0]}
+                                value={selectedComputer.releaseDate ? selectedComputer.releaseDate.split("T")[0] : ""}
                                 onChange={handleInputChange}
                             />
                         </label>
                         <label>
+                            Price:
+                            <input
+                                type="number"
+                                name="price"
+                                value={selectedComputer.price}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                        <label>
+                             Stock:
+                        <input
+                                type="number"
+                        name="stock"
+                        value={selectedComputer.stock || ""}
+                        onChange={handleInputChange}
+                        />
+                        </label>
+
+                        <label>
                             Images:
                             <input type="file" name="images" multiple />
                         </label>
-                        <button type="submit">Update</button>
+                        <button type="submit">
+                            {selectedComputer.computer_id ? "Update" : "Create"}
+                        </button>
                     </form>
                 ) : (
-                    <p>Select a product to update.</p>
+                    <p>Select a product or click "New Computer" to get started.</p>
                 )}
             </div>
         </div>
