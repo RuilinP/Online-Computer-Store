@@ -1,82 +1,119 @@
-import { Link, Navigate } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from "react";
 import { User, user_context } from "../models/user_model";
-import { useContext } from "react";
-import { useState, useEffect } from "react";
-import Table from 'react-bootstrap/Table';
-import { checkout, clear_cart, get_cart, remove_item } from '../models/cart_model';
-import Button from 'react-bootstrap/Button';
+import { get_cart, update_cart, remove_item } from "../models/cart_model";
 
-import "./Cart/cart.css"
-
-function EmptyCart(){
-	return <div className='empty'>
-		<p>Looks like your cart is empty.</p>
-		<Link to="/">Back to Shopping!</Link>
-	</div>
-}
-
-
-
-function Cart() {
-    const [cart, setCart] = useState(null); // Local state for cart
-    const { user } = useContext(user_context); // Access user context
+const Cart = () => {
+    const { user } = useContext(user_context);
+    const [cart, setCart] = useState(null);
+    const [totals, setTotals] = useState({ subtotal: 0, tax: 0, shippingFees: 0, total: 0 });
+    const token = localStorage.getItem("authToken");
 
     useEffect(() => {
         const fetchCart = async () => {
-            const token = localStorage.getItem("authToken");
             if (!token) return;
-
             try {
                 const fetchedCart = await get_cart(token);
-                setCart(fetchedCart); // Update local cart state
+                setCart(fetchedCart);
+                calculateTotals(fetchedCart);
             } catch (error) {
                 console.error("Error fetching cart:", error);
             }
         };
 
         fetchCart();
-    }, []);
+    }, [token]);
 
-    if (!user) {
-        return <p>Please log in to view your cart.</p>;
-    }
+    const calculateTotals = (cart) => {
+        if (!cart) return;
+        const { subtotal, tax, shippingFees, total } = cart;
+        setTotals({ subtotal, tax, shippingFees, total });
+    };
 
-    if (!cart) {
-        return <p>Loading your cart...</p>;
-    }
+    const handleQuantityChange = async (computer_id, newQuantity) => {
+        if (!cart) return;
+
+        const updatedItems = cart.items.map((item) =>
+            item.computer_id === computer_id
+                ? { computer_id, quantity: newQuantity }
+                : { computer_id: item.computer_id, quantity: item.quantity }
+        );
+
+        try {
+            await update_cart(token, updatedItems);
+            const updatedCart = await get_cart(token);
+            setCart(updatedCart);
+            calculateTotals(updatedCart);
+        } catch (error) {
+            alert(error.message || "Failed to update quantity.");
+            console.error("Error updating cart:", error);
+        }
+    };
+
+    const handleRemoveItem = async (computer_id) => {
+        try {
+            await remove_item(token, computer_id);
+            const updatedCart = await get_cart(token);
+            setCart(updatedCart);
+            calculateTotals(updatedCart);
+        } catch (error) {
+            alert(error.message || "Failed to remove item.");
+            console.error("Error removing item:", error);
+        }
+    };
+
+    if (!user) return <p>Please log in to view your cart.</p>;
+    if (!cart) return <p>Loading cart...</p>;
 
     return (
-        <div>
+        <div className="cart">
             <h2>Your Cart</h2>
             <table>
                 <thead>
                     <tr>
                         <th>Product</th>
-                        <th>Quantity</th>
                         <th>Price</th>
-                        <th>Total</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {cart.items.map((item) => (
                         <tr key={item.computer_id}>
                             <td>{item.name}</td>
-                            <td>{item.quantity}</td>
                             <td>${item.price.toFixed(2)}</td>
+                            <td>
+                                <button
+                                    onClick={() => handleQuantityChange(item.computer_id, item.quantity + 1)}
+                                    disabled={item.quantity >= item.stock} // Disable increment above stock
+                                >
+                                    +
+                                </button>
+                                <span>{item.quantity}</span>
+                                <button
+                                    onClick={() => handleQuantityChange(item.computer_id, item.quantity - 1)}
+                                    disabled={item.quantity <= 1} // Prevent decrement below 1
+                                >
+                                    -
+                                </button>
+                            </td>
                             <td>${(item.quantity * item.price).toFixed(2)}</td>
+                            <td>
+                                <button onClick={() => handleRemoveItem(item.computer_id)}>Remove</button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
-            <div>
-                <p>Subtotal: ${cart.subtotal.toFixed(2)}</p>
-                <p>Tax: ${cart.tax.toFixed(2)}</p>
-                <p>Shipping Fees: ${cart.shippingFees.toFixed(2)}</p>
-                <h3>Total: ${cart.total.toFixed(2)}</h3>
+            <div className="cart-totals">
+                <h3>Cart Summary</h3>
+                <p>Subtotal: ${totals.subtotal.toFixed(2)}</p>
+                <p>Tax: ${totals.tax.toFixed(2)}</p>
+                <p>Shipping Fees: ${totals.shippingFees.toFixed(2)}</p>
+                <h3>Total: ${totals.total.toFixed(2)}</h3>
             </div>
         </div>
     );
-}
+};
 
-  
-  export default Cart;
+export default Cart;

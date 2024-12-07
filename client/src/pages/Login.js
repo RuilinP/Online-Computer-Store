@@ -49,7 +49,6 @@ function Login() {
             setUser(userData.user);
 
             if (userData.user.role === "buyer") {
-                // Check if the user already has a cart
                 const cartCheckResponse = await fetch("https://computers.ruilin.moe/api/carts/view", {
                     method: "GET",
                     headers: {
@@ -60,7 +59,6 @@ function Login() {
                 if (cartCheckResponse.ok) {
                     console.log("Cart already exists for user.");
                 } else if (cartCheckResponse.status === 404) {
-                    // Create a new cart if not found
                     const cartResponse = await fetch("https://computers.ruilin.moe/api/carts/create", {
                         method: "POST",
                         headers: {
