@@ -21,35 +21,40 @@ exports.createCart = async (req, res, next) => {
 
 // -----* Add an item to cart *-----
 exports.addItemToCart = async (req, res, next) => {
-    // fetching information from the request body
-    const { cart_id, computer_id, quantity } = req.body;
-    // Implement transaction for data integrity: all succeed or rollback
+    const { computer_id, quantity } = req.body;
+
     const transaction = await sequelize.transaction();
     try {
+        // Find or create a cart for the authenticated user
+        let cart = await Cart.findOne({ where: { user_id: req.user.id } });
+        if (!cart) {
+            cart = await Cart.create({ user_id: req.user.id }, { transaction });
+        }
+
+        // Ensure the computer exists and has sufficient stock
         const computer = await Computer.findByPk(computer_id, { transaction });
         if (!computer || computer.stock < quantity) {
-            return res.status(400).json({ message: `Computer with Id ${computer_id} is out of stock` });
+            return res.status(400).json({ message: `Computer with ID ${computer_id} is out of stock` });
         }
 
-        const existingItem = await CartItem.findOne({ where: { cart_id, computer_id }, transaction });
-        // Validate item existing in the cartItem
+        // Check if the item already exists in the cart
+        const existingItem = await CartItem.findOne({ where: { cart_id: cart.cart_id, computer_id }, transaction });
         if (existingItem) {
-            const quantityUpdated = Number(existingItem.quantity) + Number(quantity);
-            //update the quantity in the cartItem
-            await existingItem.update({ quantity: quantityUpdated }, { transaction });
+            const updatedQuantity = Number(existingItem.quantity) + Number(quantity);
+            await existingItem.update({ quantity: updatedQuantity }, { transaction });
         } else {
-            // if the item do not exist in the cartItem, add item to the cart
-            await CartItem.create({ cart_id, computer_id, quantity }, { transaction });
+            // Add the item to the cart if it doesn't exist
+            await CartItem.create({ cart_id: cart.cart_id, computer_id, quantity }, { transaction });
         }
 
-        await transaction.commit(); //commit changes
-        const cartItemUpdates = await CartItem.findAll({ where: { cart_id }, });
-        res.status(201).json({ message: 'Item added succsefully', cartItemUpdates });
+        await transaction.commit();
+        res.status(201).json({ message: "Item added to cart successfully." });
     } catch (error) {
-        await transaction.rollback(); // do not make changes to db if there is an error
-        next(error); //pass error to error handler in app.js
+        await transaction.rollback();
+        next(error);
     }
 };
+
 
 
 // -----* View cart with items *-----

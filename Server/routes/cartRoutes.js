@@ -19,7 +19,7 @@ const router = express.Router();
 
 
 router.post('/create', authenticateJWT, authorizeRole(['buyer']), createCart);  // Create new cart
-router.post('/addItem', authenticateJWT, authorizeRole(['buyer']), addItemToCart);  // Add Item to cart
+router.post("/addItem", authenticateJWT, addItemToCart);  // Add Item to cart
 router.get('/:id', authenticateJWT, authorizeRole(['buyer', 'admin']), viewCart);    // View cart with items
 router.delete('/:id', authenticateJWT, authorizeRole(['buyer', 'admin']), deleteCart); // Delete a cart
 router.put('/updateCart/:id', authenticateJWT, authorizeRole(['buyer']), updateCartItem);

@@ -44,6 +44,22 @@ function Login() {
       if (response.ok) {
           const userData = await response.json();
           setUser(userData.user); 
+
+          if (userData.user.role === "buyer") {
+            const cartResponse = await fetch("https://computers.ruilin.moe/api/carts/create", {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+    
+            if (cartResponse.ok) {
+              console.log("Cart created successfully.");
+            } else {
+              console.error("Failed to create cart:", cartResponse.statusText);
+            }
+          }
+
           alert("Login successful!");
       } else {
           console.error("Failed to fetch user info:", response.statusText);

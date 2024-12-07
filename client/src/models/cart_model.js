@@ -1,7 +1,25 @@
-export function add_item_to_cart(token, id, quantity = 1){
-    console.log("Click")
-    //TODO 
+export async function add_item_to_cart(token, computer_id, quantity = 1) {
+    try {
+        const response = await fetch("https://computers.ruilin.moe/api/carts/addItem", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ cart_id: 1, computer_id, quantity }), // Adjust `cart_id` as necessary
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to add item to cart.");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error adding item to cart:", error);
+        throw error;
+    }
 }
+
 
 export async function get_cart(token){
     return await(await fetch("./cart.json")).json()

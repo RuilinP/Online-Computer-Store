@@ -13,16 +13,31 @@ function Computers() {
 
     const [data, setData] = useState();
     const [sort, setSort] = useState("");
-    const [filter, setFilter] = useState({}); // Example: { category: "Laptop", price: [0, 1000] }
+    const [filter, setFilter] = useState({}); 
 
-    const handleAddToCart = (id) => {
-        if (!user) {
-            alert("Please log in to add items to your cart.");
-            return;
-        }
-        add_item_to_cart(user.token, id);
-        alert("Added to cart.");
-    };
+    const handleAddToCart = async (computer) => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Please log in to add items to your cart.");
+        return;
+    }
+  
+      if (computer.stock <= 0) {
+          alert("This item is out of stock.");
+          return;
+      }
+  
+      try {
+          console.log(computer.computer_id);
+          console.log(token);
+          await add_item_to_cart(token, computer.computer_id, 1); 
+          alert("Added to cart.");
+      } catch (error) {
+          console.error("Error adding item to cart:", error);
+          alert("Failed to add item to cart.");
+      }
+  };
+  
 
     const fetchData = async () => {
         try {
@@ -55,24 +70,25 @@ function Computers() {
     }
 
     const elements = data.map((computer) => {
-        const id = computer.computer_id;
-        const img_url = computer.images?.length
-            ? `https://computers.ruilin.moe${computer.images[0].image_path}`
-            : 'assets/default_image.png';
-        return (
-            <div className="product_tile" key={id}>
-                <img src={img_url} alt="Product Image" />
-                <Link to={`/computers/${id}`}>
-                    <h2>{computer.name}</h2>
-                </Link>
-                <p>${computer.price.toFixed(2)} CAD</p>
-                <button onClick={() => handleAddToCart(id)}>
-                    Add To Cart
-                    <img src="assets/shopping_cart_icon.svg" alt="Cart Icon" />
-                </button>
-            </div>
-        );
-    });
+      const id = computer.computer_id;
+      const img_url = computer.images?.length
+          ? `https://computers.ruilin.moe${computer.images[0].image_path}`
+          : 'assets/default_image.png';
+      return (
+          <div className="product_tile" key={id}>
+              <img src={img_url} alt="Product Image" />
+              <Link to={`/computers/${id}`}>
+                  <h2>{computer.name}</h2>
+              </Link>
+              <p>${computer.price.toFixed(2)} CAD</p>
+              <button onClick={() => handleAddToCart(computer)}>
+                  Add To Cart
+                  <img src="assets/shopping_cart_icon.svg" alt="Cart Icon" />
+              </button>
+          </div>
+      );
+  });
+  
 
     return (
         <div>
