@@ -61,8 +61,32 @@ const Cart = () => {
         }
     };
 
+    const handleCheckout = async () => {
+        try {
+            const response = await fetch("https://computers.ruilin.moe/api/carts/checkout", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                alert(`Checkout successful! Order ID: ${result.order_id}`);
+                setCart(null); // Clear the cart on successful checkout
+            } else {
+                const error = await response.json();
+                alert(error.message || "Checkout failed.");
+            }
+        } catch (error) {
+            console.error("Error during checkout:", error);
+            alert("An error occurred during checkout.");
+        }
+    };
+
     if (!user) return <p>Please log in to view your cart.</p>;
-    if (!cart) return <p>Loading cart...</p>;
+    if (!cart) return <p>Your cart is empty.</p>;
 
     return (
         <div className="cart">
@@ -111,6 +135,7 @@ const Cart = () => {
                 <p>Tax: ${totals.tax.toFixed(2)}</p>
                 <p>Shipping Fees: ${totals.shippingFees.toFixed(2)}</p>
                 <h3>Total: ${totals.total.toFixed(2)}</h3>
+                <button onClick={handleCheckout}>Checkout</button>
             </div>
         </div>
     );

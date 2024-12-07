@@ -280,21 +280,23 @@ exports.checkOut = async (req, res, next) => {
         const cart = await Cart.findOne({
             where: { user_id: req.user.id },
             include: {
-                model: CartItem, as: "items", include: [{ model: Computer, as: 'computer' }]
+                model: CartItem,
+                as: "items",
+                include: [{ model: Computer, as: 'computer' }]
             },
             transaction,
         });
 
         if (!cart || cart.items.length === 0) {
             await transaction.rollback();
-            return res.status(400).json({ erro: "The Cart is Empty" });
+            return res.status(400).json({ error: "The Cart is Empty" });
         }
 
         const subtotal = cart.items.reduce((acc, item) => acc + (item.computer.price * item.quantity), 0);
-        const saleTaxRate = 0.13;
-        const tax = (subtotal * saleTaxRate).DECIMAL(10, 1);
-        const shippingFees = 10;
-        const total = subtotal + tax + shippingFees;
+        const saleTaxRate = 0.13; // Example tax rate
+        const tax = parseFloat((subtotal * saleTaxRate).toFixed(2)); // Fix: Proper tax calculation
+        const shippingFees = 10; // Example flat shipping fee
+        const total = parseFloat((subtotal + tax + shippingFees).toFixed(2)); // Fix: Proper total calculation
 
         for (const item of cart.items) {
             if (item.computer.stock < item.quantity) {
@@ -309,9 +311,7 @@ exports.checkOut = async (req, res, next) => {
             user_id: req.user.id,
             total_price: total,
             status: "pending",
-        },
-            { transaction }
-        );
+        }, { transaction });
 
         const orderItems = cart.items.map((item) => ({
             order_id: order.order_id,
@@ -325,10 +325,11 @@ exports.checkOut = async (req, res, next) => {
 
         await CartItem.destroy({ where: { cart_id: cart.cart_id }, transaction });
         await transaction.commit();
-        res.status(200).json({ message: `Checkout successfully.`, order })
+        res.status(200).json({ message: `Checkout successfully.`, order });
     } catch (error) {
         await transaction.rollback();
         console.error("Error during checkout:", error);
         next(error);
     }
 };
+
