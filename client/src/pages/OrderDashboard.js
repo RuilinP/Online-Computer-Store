@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 
 const OrderDashboard = () => {
     const [orders, setOrders] = useState([]);
+    const [users, setUsers] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const token = localStorage.getItem("authToken");
     const navigate = useNavigate();
-    const [expandedOrder, setExpandedOrder] = useState(null); // For toggling order details
+    const [expandedOrder, setExpandedOrder] = useState(null);
 
     useEffect(() => {
-        const fetchOrders = async () => {
+        const fetchOrdersAndUsers = async () => {
             try {
                 const response = await fetch("https://computers.ruilin.moe/api/orders", {
                     headers: {
@@ -22,6 +23,19 @@ const OrderDashboard = () => {
                 }
                 const data = await response.json();
                 setOrders(data.orders);
+
+                const userPromises = data.orders.map((order) =>
+                    fetch(`https://computers.ruilin.moe/api/users/${order.user_id}`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }).then((res) => res.json())
+                );
+                const userDetails = await Promise.all(userPromises);
+                const userMap = {};
+                userDetails.forEach((user) => {
+                    userMap[user.user.id] = user.user; 
+                });
+                setUsers(userMap);
+
                 setLoading(false);
             } catch (err) {
                 setError(err.message);
@@ -29,7 +43,7 @@ const OrderDashboard = () => {
             }
         };
 
-        fetchOrders();
+        fetchOrdersAndUsers();
     }, [token]);
 
     const handleStatusChange = async (order_id, newStatus) => {
@@ -71,7 +85,7 @@ const OrderDashboard = () => {
                 <thead>
                     <tr>
                         <th>Order ID</th>
-                        <th>User ID</th>
+                        <th>User Info</th>
                         <th>Total Price</th>
                         <th>Status</th>
                         <th>Actions</th>
@@ -82,7 +96,19 @@ const OrderDashboard = () => {
                         <>
                             <tr key={order.order_id}>
                                 <td>{order.order_id}</td>
-                                <td>{order.user_id}</td>
+                                <td>
+                                    {users[order.user_id] ? (
+                                        <>
+                                            <p>Name: {users[order.user_id].name}</p>
+                                            <p>Email: {users[order.user_id].email}</p>
+                                            <p>Phone: {users[order.user_id].phone}</p>
+                                            <p>Address: {users[order.user_id].address}</p>
+                                            <p>Order Created At: {new Date(order.createdAt).toLocaleString()}</p>
+                                        </>
+                                    ) : (
+                                        "Loading user info..."
+                                    )}
+                                </td>
                                 <td>${order.total_price.toFixed(2)}</td>
                                 <td>{order.order_status}</td>
                                 <td>

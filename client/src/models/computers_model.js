@@ -86,3 +86,18 @@ export const update_computer = async (id, formData) => {
         throw error;
     }
 };
+
+export const delete_computer = async (computer_id) => {
+    const response = await fetch(`https://computers.ruilin.moe/api/computers/${computer_id}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+    });
+
+    if (!response.ok) {
+        throw new Error("Failed to delete computer");
+    }
+
+    return response.json();
+};

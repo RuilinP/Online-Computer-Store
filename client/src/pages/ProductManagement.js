@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { get_computers, update_computer, create_computer } from "../models/computers_model";
+import { get_computers, update_computer, create_computer, delete_computer } from "../models/computers_model";
 import "./ProductManager.css";
 
 function ProductManager() {
@@ -30,6 +30,27 @@ function ProductManager() {
             releaseDate: "",
             price: "",
         });
+    };
+
+    const handleDeleteComputer = async () => {
+        if (!selectedComputer || !selectedComputer.computer_id) {
+            alert("No product selected to delete!");
+            return;
+        }
+    
+        if (!window.confirm("Are you sure you want to delete this product?")) {
+            return;
+        }
+    
+        try {
+            await delete_computer(selectedComputer.computer_id);
+            alert("Computer deleted successfully!");
+            fetchComputers();
+            setSelectedComputer(null);
+        } catch (error) {
+            console.error("Error deleting computer:", error);
+            alert("Failed to delete the computer.");
+        }
     };
 
     const handleInputChange = (e) => {
@@ -184,6 +205,15 @@ function ProductManager() {
                         <button type="submit">
                             {selectedComputer.computer_id ? "Update" : "Create"}
                         </button>
+                        {selectedComputer?.computer_id && (
+                        <button
+                            type="button"
+                            onClick={handleDeleteComputer}
+                            style={{ backgroundColor: "red", color: "white", marginTop: "10px" }}>
+                            Delete Product
+                        </button>
+)}
+
                     </form>
                 ) : (
                     <p>Select a product or click "New Computer" to get started.</p>

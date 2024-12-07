@@ -1,11 +1,18 @@
 import React, { useEffect, useState, useContext } from "react";
 import { User, user_context } from "../models/user_model";
 import { get_cart, update_cart, remove_item } from "../models/cart_model";
+import emailjs from "emailjs-com";
 
 const Cart = () => {
     const { user } = useContext(user_context);
     const [cart, setCart] = useState(null);
     const [totals, setTotals] = useState({ subtotal: 0, tax: 0, shippingFees: 0, total: 0 });
+    const [creditCardInfo, setCreditCardInfo] = useState({
+        cardNumber: "",
+        expiryMonth: "",
+        securityCode: "",
+    });
+    const [errors, setErrors] = useState({});
     const token = localStorage.getItem("authToken");
 
     useEffect(() => {
@@ -29,7 +36,27 @@ const Cart = () => {
         setTotals({ subtotal, tax, shippingFees, total });
     };
 
-    const handleQuantityChange = async (computer_id, newQuantity) => {
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setCreditCardInfo({ ...creditCardInfo, [name]: value });
+    };
+
+    const validateFields = () => {
+        const newErrors = {};
+        if (!creditCardInfo.cardNumber.match(/^\d{16}$/)) {
+            newErrors.cardNumber = "Card number must be 16 digits.";
+        }
+        if (!creditCardInfo.expiryMonth.match(/^(0[1-9]|1[0-2])\/\d{2}$/)) {
+            newErrors.expiryMonth = "Expiry must be in MM/YY format.";
+        }
+        if (!creditCardInfo.securityCode.match(/^\d{3}$/)) {
+            newErrors.securityCode = "Security code must be 3 digits.";
+        }
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+	const handleQuantityChange = async (computer_id, newQuantity) => {
         if (!cart) return;
 
         const updatedItems = cart.items.map((item) =>
@@ -62,6 +89,11 @@ const Cart = () => {
     };
 
     const handleCheckout = async () => {
+        if (!validateFields()) {
+            alert("Please fix the errors before proceeding.");
+            return;
+        }
+
         try {
             const response = await fetch("https://computers.ruilin.moe/api/carts/checkout", {
                 method: "POST",
@@ -73,8 +105,31 @@ const Cart = () => {
 
             if (response.ok) {
                 const result = await response.json();
-                alert(`Checkout successful!`);
-                setCart(null); // Clear the cart on successful checkout
+				const emailData = {
+					to_name: user?.name || "Customer",
+					to_email: user?.email,
+					order_id: result.order_id,
+					total_price: totals.total.toFixed(2),
+					created_at: new Date(result.createdAt).toLocaleString(),
+					items: cart.items.map(
+						(item) =>
+							`${item.name} (Quantity: ${item.quantity}) - $${item.price.toFixed(2)}`
+					).join("\n"),
+				};
+
+				console.log(emailData);
+				emailjs
+                .send("service_hkjcvig", "template_ruz5mbe", emailData, "s4UxeHCiRa0rI_LbN")
+                .then(
+                    () => {
+                        alert("Order placed successfully! A confirmation email has been sent.");
+                        setCart(null); 
+                    },
+                    (error) => {
+                        console.error("Email sending failed:", error);
+                        alert("Order placed successfully, but the confirmation email could not be sent.");
+                    }
+                );
             } else {
                 const error = await response.json();
                 alert(error.message || "Checkout failed.");
@@ -109,14 +164,14 @@ const Cart = () => {
                             <td>
                                 <button
                                     onClick={() => handleQuantityChange(item.computer_id, item.quantity + 1)}
-                                    disabled={item.quantity >= item.stock} // Disable increment above stock
+                                    disabled={item.quantity >= item.stock} 
                                 >
                                     +
                                 </button>
                                 <span>{item.quantity}</span>
                                 <button
                                     onClick={() => handleQuantityChange(item.computer_id, item.quantity - 1)}
-                                    disabled={item.quantity <= 1} // Prevent decrement below 1
+                                    disabled={item.quantity <= 1} 
                                 >
                                     -
                                 </button>
@@ -135,7 +190,43 @@ const Cart = () => {
                 <p>Tax: ${totals.tax.toFixed(2)}</p>
                 <p>Shipping Fees: ${totals.shippingFees.toFixed(2)}</p>
                 <h3>Total: ${totals.total.toFixed(2)}</h3>
-                <button onClick={handleCheckout}>Checkout</button>
+            </div>
+            <div className="credit-card-form">
+                <h3>Payment Information</h3>
+                <div>
+                    <label>Card Number</label>
+                    <input
+                        type="text"
+                        name="cardNumber"
+                        value={creditCardInfo.cardNumber}
+                        onChange={handleInputChange}
+                        maxLength={16}
+                    />
+                    {errors.cardNumber && <p className="error">{errors.cardNumber}</p>}
+                </div>
+                <div>
+                    <label>Expiry Month (MM/YY)</label>
+                    <input
+                        type="text"
+                        name="expiryMonth"
+                        value={creditCardInfo.expiryMonth}
+                        onChange={handleInputChange}
+                        maxLength={5}
+                    />
+                    {errors.expiryMonth && <p className="error">{errors.expiryMonth}</p>}
+                </div>
+                <div>
+                    <label>Security Code</label>
+                    <input
+                        type="text"
+                        name="securityCode"
+                        value={creditCardInfo.securityCode}
+                        onChange={handleInputChange}
+                        maxLength={3}
+                    />
+                    {errors.securityCode && <p className="error">{errors.securityCode}</p>}
+                </div>
+                <button onClick={handleCheckout}>Pay now</button>
             </div>
         </div>
     );
