@@ -5,7 +5,6 @@ const OrderItem = require('../models/OrderItem');
 exports.getAllOrders = async (req, res) => {
     try {
         const orders = await Order.findAll({
-            where: { user_id: req.user.id },
             include: [
                 {
                     model: OrderItem,
@@ -13,10 +12,13 @@ exports.getAllOrders = async (req, res) => {
                     include: [
                         {
                             model: Computer,
-                            as: 'computer'
-                        }],
-                }],
-            order: [['createdAt', 'DESC']], // Sort by newest first
+                            as: 'computer',
+                            attributes: ['name', 'price', 'stock'],
+                        },
+                    ],
+                },
+            ],
+            order: [['createdAt', 'DESC']], 
         });
 
         if (orders.length === 0) {
@@ -28,6 +30,7 @@ exports.getAllOrders = async (req, res) => {
         res.status(500).json({ message: 'Error fetching orders.', error: error.message });
     }
 };
+
 
 exports.updateOrder = async (req, res) => {
     try {
@@ -41,7 +44,7 @@ exports.updateOrder = async (req, res) => {
         }
 
         if (!['pending', 'completed', 'canceled'].includes(order_status)) {
-            return res.status(400).json({ message: "Invalid order status." });
+            return res.status(400).json({ message: "Invalid order status. Allowed values: pending, completed, canceled." });
         }
 
         order.order_status = order_status;
@@ -52,6 +55,7 @@ exports.updateOrder = async (req, res) => {
         res.status(500).json({ message: 'Error updating order.', error: error.message });
     }
 };
+
 
 
 

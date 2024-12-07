@@ -17,8 +17,9 @@ router.post('/create', authenticateJWT, authorizeRole(['buyer']), createOrder); 
 router.post('/add', authenticateJWT, authorizeRole(['buyer']), addItemToOrder);  // Add Item to order
 router.get('/:id', authenticateJWT, authorizeRole(['buyer', 'admin']), getOrder);    // Get order with items
 router.delete('/:id', authenticateJWT, authorizeRole(['admin']), deleteOrder); // Delete an order
-router.get('/', authenticateJWT, authorizeRole(['buyer', 'admin']), getAllOrders); // Get all orders for user
-router.put('/:id', authenticateJWT, authorizeRole(['admin']), updateOrder); // Update order by ID
+router.get('/', authenticateJWT, authorizeRole(['admin']), getAllOrders); // Get all orders for admin
+router.put('/:id', authenticateJWT, authorizeRole(['admin']), updateOrder); // Update any order by ID
+// Update order by ID
 
 
 module.exports = router;
