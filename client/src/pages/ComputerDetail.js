@@ -36,9 +36,7 @@ function ComputerDetail() {
     }
 
     return (
-        <div>
-            
-
+        <div className="computer-detail">
             <div id="content">
                 <div className="carousel">
                     {computer.images.map((image) => (
@@ -50,41 +48,68 @@ function ComputerDetail() {
                     ))}
                 </div>
                 <div className="description">
-                    <p id="title">{computer.name}</p>
-                    <p>★★★★☆ {computer.popularity / 20} ({computer.popularity} Reviews)</p>
+                    <h1 id="title">{computer.name}</h1>
+                    <p>Model: {computer.model}</p>
+                    <p>Category: {computer.category}</p>
+                    <p>Address: {computer.address}</p>
+                    <p>
+                        ★★★★☆ {computer.popularity ? (computer.popularity / 20).toFixed(1) : "N/A"} ({computer.popularity ? `${computer.popularity} Reviews` : "No Reviews Yet"})
+                    </p>
+                    <p>Manufacturer: {computer.manufacturer}</p>
+                    <p>Release Date: {new Date(computer.releaseDate).toDateString()}</p>
+                    <p>Price: <span id="price">${computer.price.toFixed(2)} USD (tax)</span></p>
                     <p>This product is sold and shipped by <a href="#">Alumni House</a>.</p>
-                    <p>New <span id="price">${computer.price.toFixed(2)} USD (tax)</span></p>
                 </div>
                 <div className="buy">
                     <button className="buttonb">Buy now</button>
                     <button className="buttona">Add to cart</button>
                 </div>
             </div>
-
-            <table>
-                <tr>
-                    <th>Product ID</th>
-                    <td>{computer.stockCode}</td>
-                </tr>
-                <tr>
-                    <th>Category</th>
-                    <td>
-                        <a href="#">{computer.category}</a>
-                    </td>
-                </tr>
-            </table>
-
-            <div id="content2">
-                <p><span>Details</span></p>
-                <p>This product is sold assuming the above conditions. We cannot accept any questions, returns, or complaints, so please be aware of this before purchasing.</p>
-                <p>Specification:</p>
+    
+            <div id="specifications">
+                <h2>Specifications</h2>
                 <ul>
                     {computer.specification.split(", ").map((spec, index) => (
                         <li key={index}>{spec}</li>
                     ))}
                 </ul>
             </div>
-
+    
+            <div id="details">
+                <h2>Additional Details</h2>
+                <table>
+                    <tbody>
+                        <tr>
+                            <th>Product ID</th>
+                            <td>{computer.stockCode}</td>
+                        </tr>
+                        <tr>
+                            <th>Category</th>
+                            <td>
+                                <a href="#">{computer.category}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Address</th>
+                            <td>{computer.address}</td>
+                        </tr>
+                        <tr>
+                            <th>Manufacturer</th>
+                            <td>{computer.manufacturer}</td>
+                        </tr>
+                        <tr>
+                            <th>Release Date</th>
+                            <td>{new Date(computer.releaseDate).toDateString()}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+    
+            <div id="content2">
+                <h2>Details</h2>
+                <p>This product is sold assuming the above conditions. We cannot accept any questions, returns, or complaints, so please be aware of this before purchasing.</p>
+            </div>
+    
             <div className="footer">
                 <p>
                     <a href="#"><span>About us</span></a>
@@ -97,6 +122,7 @@ function ComputerDetail() {
             </div>
         </div>
     );
+    
 }
 
 export default ComputerDetail;
