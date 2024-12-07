@@ -2,6 +2,60 @@ const Computer = require('../models/Computer');
 const Order = require('../models/Order');
 const OrderItem = require('../models/OrderItem');
 
+exports.getAllOrders = async (req, res) => {
+    try {
+        const orders = await Order.findAll({
+            include: [
+                {
+                    model: OrderItem,
+                    as: 'items',
+                    include: [
+                        {
+                            model: Computer,
+                            as: 'computer',
+                            attributes: ['name', 'price', 'stock'],
+                        },
+                    ],
+                },
+            ],
+            order: [['createdAt', 'DESC']],
+        });
+
+        if (orders.length === 0) {
+            return res.status(404).json({ message: "No orders found." });
+        }
+
+        res.status(200).json({ orders });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching orders.', error: error.message });
+    }
+};
+
+
+exports.updateOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { order_status } = req.body;
+
+        const order = await Order.findOne({ where: { order_id: id } });
+
+        if (!order) {
+            return res.status(404).json({ message: `Order with ID ${id} not found.` });
+        }
+
+        if (!['pending', 'completed', 'canceled'].includes(order_status)) {
+            return res.status(400).json({ message: "Invalid order status. Allowed values: pending, completed, canceled." });
+        }
+
+        order.order_status = order_status;
+        await order.save();
+
+        res.status(200).json({ message: "Order updated successfully.", order });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating order.', error: error.message });
+    }
+};
+
 
 //Create a order
 exports.createOrder = async (req, res) => {
