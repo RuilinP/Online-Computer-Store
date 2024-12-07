@@ -1,6 +1,7 @@
 import { Link, Navigate } from 'react-router-dom';
 import { User, user_context } from "../models/user_model";
 import { useContext } from "react";
+import { useState, useEffect } from "react";
 import Table from 'react-bootstrap/Table';
 import { checkout, clear_cart, get_cart, remove_item } from '../models/cart_model';
 import Button from 'react-bootstrap/Button';
@@ -17,111 +18,65 @@ function EmptyCart(){
 
 
 function Cart() {
-	const { user, setUser } = useContext(user_context);
+    const [cart, setCart] = useState(null); // Local state for cart
+    const { user } = useContext(user_context); // Access user context
 
-	const handle_clear = async() => {
-		setUser(
-			new User(
-				user.token,
-				user.data,
-				await clear_cart(user.token)
-			)
-		)
-	}
+    useEffect(() => {
+        const fetchCart = async () => {
+            const token = localStorage.getItem("authToken");
+            if (!token) return;
 
-	const handle_checkout = async () => {
-		let result = await checkout(user.token)
+            try {
+                const fetchedCart = await get_cart(token);
+                setCart(fetchedCart); // Update local cart state
+            } catch (error) {
+                console.error("Error fetching cart:", error);
+            }
+        };
 
-		if (typeof result === 'string' || result instanceof String){
-			//error string returned
-			alert(result)
-		}else{
-			alert("Simulated Checkout Successful")
-			setUser(
-				new User(
-					user.token,
-					user.data,
-					result
-				)
-			)
-		}
-	}
+        fetchCart();
+    }, []);
 
-	const handle_remove = async (id) => {
-		setUser(
-			new User(
-				user.token,
-				user.data,
-				await remove_item(user.token, id)
-			)
-		)
-	}
+    if (!user) {
+        return <p>Please log in to view your cart.</p>;
+    }
 
-	if (!user) {
-		//Redirect if not logged in
-		return <Navigate replace to="/login"/>
-	}
+    if (!cart) {
+        return <p>Loading your cart...</p>;
+    }
 
-	if(!user.cart || user.cart.items.length == 0){
-		//if cart is undefined or empty
-		return <EmptyCart/>
-	}
-
-	let elements = []
-
-	for (const item of user.cart.items){
-		elements.push(
-			<tr>
-				<td>{item.name}</td>
-				<td>{item.quantity}</td>
-				<td>${item.price}</td>
-				<td>${item.subtotal.toFixed(2)}</td>
-				<Button onClick={() => {handle_remove(item.computer_id)}}>Remove</Button>
-			</tr>
-		)
-	}
-
-	return(
-		<div className='cartPage'>
-			<Table striped hover className='items'>
-				<thead>
-					<tr>
-						<td>Product Name</td>
-						<td>Quantity</td>
-						<td>Unit Cost</td>
-						<td>Item Subtotal</td>
-					</tr>
-				</thead>
-				<tbody>
-					{elements}
-				</tbody>
-			</Table>
-
-			<Table striped hover className='totals'>
-				<tbody>
-					<tr>
-						<td>Shipping</td>
-						<td>${user.cart.shippingFees.toFixed(2)}</td>
-					</tr>
-					<tr>
-						<td>Subtotal</td>
-						<td>${user.cart.subtotal.toFixed(2)}</td>
-					</tr>
-					<tr>
-						<td>Tax</td>
-						<td>${user.cart.tax.toFixed(2)}</td>
-					</tr>
-					<tr>
-						<td>Total</td>
-						<td>${user.cart.total.toFixed(2)}</td>
-					</tr>
-				</tbody>
-			</Table>
-			<Button className = "m-4" onClick={handle_clear}>Clear Cart</Button>
-			<Button className = "m-4" onClick={handle_checkout}>Checkout</Button>
-			
-		</div>
-	)
+    return (
+        <div>
+            <h2>Your Cart</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {cart.items.map((item) => (
+                        <tr key={item.computer_id}>
+                            <td>{item.name}</td>
+                            <td>{item.quantity}</td>
+                            <td>${item.price.toFixed(2)}</td>
+                            <td>${(item.quantity * item.price).toFixed(2)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+            <div>
+                <p>Subtotal: ${cart.subtotal.toFixed(2)}</p>
+                <p>Tax: ${cart.tax.toFixed(2)}</p>
+                <p>Shipping Fees: ${cart.shippingFees.toFixed(2)}</p>
+                <h3>Total: ${cart.total.toFixed(2)}</h3>
+            </div>
+        </div>
+    );
 }
+
   
   export default Cart;

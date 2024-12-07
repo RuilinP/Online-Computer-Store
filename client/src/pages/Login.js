@@ -17,6 +17,10 @@ function Login() {
     return <Navigate replace to="/"/>
   }
 
+  
+  
+
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -32,45 +36,57 @@ function Login() {
 
     localStorage.setItem("authToken", token);
 
-
     try {
-      const response = await fetch("https://computers.ruilin.moe/api/users/me", {
-          method: "GET",
-          headers: {
-              Authorization: `Bearer ${token}`,
-          },
-      });
-
-      if (response.ok) {
-          const userData = await response.json();
-          setUser(userData.user); 
-
-          if (userData.user.role === "buyer") {
-            const cartResponse = await fetch("https://computers.ruilin.moe/api/carts/create", {
-              method: "POST",
-              headers: {
+        const response = await fetch("https://computers.ruilin.moe/api/users/me", {
+            method: "GET",
+            headers: {
                 Authorization: `Bearer ${token}`,
-              },
-            });
-    
-            if (cartResponse.ok) {
-              console.log("Cart created successfully.");
-            } else {
-              console.error("Failed to create cart:", cartResponse.statusText);
+            },
+        });
+
+        if (response.ok) {
+            const userData = await response.json();
+            setUser(userData.user);
+
+            if (userData.user.role === "buyer") {
+                // Check if the user already has a cart
+                const cartCheckResponse = await fetch("https://computers.ruilin.moe/api/carts/view", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (cartCheckResponse.ok) {
+                    console.log("Cart already exists for user.");
+                } else if (cartCheckResponse.status === 404) {
+                    // Create a new cart if not found
+                    const cartResponse = await fetch("https://computers.ruilin.moe/api/carts/create", {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+
+                    if (cartResponse.ok) {
+                        console.log("Cart created successfully.");
+                    } else {
+                        console.error("Failed to create cart:", cartResponse.statusText);
+                    }
+                } else {
+                    console.error("Failed to check cart:", cartCheckResponse.statusText);
+                }
             }
-          }
 
-          alert("Login successful!");
-      } else {
-          console.error("Failed to fetch user info:", response.statusText);
-      }
-  } catch (error) {
-      console.error("Error fetching user info:", error);
-  }
-  
+            alert("Login successful!");
+        } else {
+            console.error("Failed to fetch user info:", response.statusText);
+        }
+    } catch (error) {
+        console.error("Error fetching user info:", error);
+    }
+};
 
-
-  };
 
   return (
     <div className="loginArea">
