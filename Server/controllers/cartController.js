@@ -33,14 +33,24 @@ exports.addItemToCart = async (req, res, next) => {
 
         // Ensure the computer exists and has sufficient stock
         const computer = await Computer.findByPk(computer_id, { transaction });
-        if (!computer || computer.stock < quantity) {
-            return res.status(400).json({ message: `Computer with ID ${computer_id} is out of stock` });
+        if (!computer) {
+            return res.status(404).json({ message: `Computer with ID ${computer_id} not found.` });
+        }
+        if (computer.stock < quantity) {
+            return res.status(400).json({
+                message: `Insufficient stock. Available stock: ${computer.stock}.`,
+            });
         }
 
         // Check if the item already exists in the cart
         const existingItem = await CartItem.findOne({ where: { cart_id: cart.cart_id, computer_id }, transaction });
         if (existingItem) {
             const updatedQuantity = Number(existingItem.quantity) + Number(quantity);
+            if (updatedQuantity > computer.stock) {
+                return res.status(400).json({
+                    message: `Cannot add ${quantity} items. Available stock: ${computer.stock - existingItem.quantity}.`,
+                });
+            }
             await existingItem.update({ quantity: updatedQuantity }, { transaction });
         } else {
             // Add the item to the cart if it doesn't exist
@@ -54,6 +64,7 @@ exports.addItemToCart = async (req, res, next) => {
         next(error);
     }
 };
+
 
 
 

@@ -6,11 +6,12 @@ export async function add_item_to_cart(token, computer_id, quantity = 1) {
                 "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ cart_id: 1, computer_id, quantity }), // Adjust `cart_id` as necessary
+            body: JSON.stringify({ computer_id, quantity }),
         });
 
         if (!response.ok) {
-            throw new Error("Failed to add item to cart.");
+            const error = await response.json();
+            throw new Error(error.message || "Failed to add item to cart.");
         }
 
         return await response.json();
@@ -19,6 +20,7 @@ export async function add_item_to_cart(token, computer_id, quantity = 1) {
         throw error;
     }
 }
+
 
 
 export async function get_cart(token){
