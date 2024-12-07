@@ -1,0 +1,46 @@
+{
+    "message": "Computers retrieved successfully.",
+    "total": 1,
+    "computers": [
+        {
+            "computer_id": 2,
+            "model": "Micro HDMI",
+            "name": "AmazonBasics Flexible and Durable Micro HDMI to HDMI Cable",
+            "category": "assessories",
+            "address": "1151 Richmond St",
+            "specification": "(4K@60Hz, 18Gbps) - 6 Foot, Black",
+            "manufacturer": "AmazonBasics",
+            "releaseDate": "2018-12-05T00:00:00.000Z",
+            "stock": 3,
+            "popularity": null,
+            "price": 10.49,
+            "images": [
+                {
+                    "image_id": 2,
+                    "image_path": "/uploads/images-1733183434268-896471391.jpg",
+                    "computer_id": 2
+                }
+            ]
+        },
+        {
+            "computer_id": 3,
+            "model": "Micro HDMI",
+            "name": "2AmazonBasics Flexible and Durable Micro HDMI to HDMI Cable",
+            "category": "assessories",
+            "address": "1151 Richmond St",
+            "specification": "(4K@60Hz, 18Gbps) - 6 Foot, Black",
+            "manufacturer": "AmazonBasics",
+            "releaseDate": "2018-12-05T00:00:00.000Z",
+            "stock": 3,
+            "popularity": null,
+            "price": 10.49,
+            "images": [
+                {
+                    "image_id": 2,
+                    "image_path": "/uploads/images-1733183434268-896471391.jpg",
+                    "computer_id": 2
+                }
+            ]
+        }
+    ]
+}
