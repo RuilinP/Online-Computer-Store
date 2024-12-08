@@ -98,3 +98,25 @@ export async function checkout(token) {
     // checkout, return resultant cart or string w error message
     return await (await fetch("./cart.json")).json()
 }
+
+export async function clear_cart(token) {
+    try {
+        const response = await fetch("https://computers.ruilin.moe/api/carts/clear", {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || "Failed to clear cart.");
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error clearing cart:", error);
+        throw error;
+    }
+}
