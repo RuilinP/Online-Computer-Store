@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 
 function LoginComponent(){
   const { user, setUser } = useContext(user_context);
+  console.log("User context in NavBar:", user);
 
   let logoutHandler = () =>{
     console.log('click')
@@ -25,19 +26,31 @@ function LoginComponent(){
   }
 
   if (user){
-    let user_name = user.data.name
-    let greeting = `Hello ${user_name}`
+    const userName = user?.name || "Guest";
+    let greeting = `Hello ${userName}`
     console.log(user)
-    return(
+    return (
       <NavDropdown title={greeting} id="basic-nav-dropdown">
-        <NavDropdown.Item>
-          <NavLink to="/user">Preferences</NavLink>
-        </NavDropdown.Item>
-        <NavDropdown.Item onClick={logoutHandler}>
-          Logout
-        </NavDropdown.Item>
+          <NavDropdown.Item>
+              <NavLink to="/user">Preferences</NavLink>
+          </NavDropdown.Item>
+          {user?.role === "admin" && (
+              <>
+              <NavDropdown.Item>
+                  <NavLink to="/products">Manage Products</NavLink>
+              </NavDropdown.Item>
+              <NavDropdown.Item>
+                  <NavLink to="/orders">Manage Orders</NavLink> {/* Add this */}
+              </NavDropdown.Item>
+          </>
+      
+          )}
+
+          <NavDropdown.Item onClick={logoutHandler}>
+              Logout
+          </NavDropdown.Item>
       </NavDropdown>
-    )
+  );
   }else{
     return(
       <NavLink to="/login" end>
@@ -59,35 +72,43 @@ function CartComponent(){
 
 function NavBar() {
   const inputRef = useRef(null);
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleSearch = () => {
-    let search = inputRef.current.value;
-    navigate(`/search/${search}`)
-  }
+      const search = inputRef.current.value;
+      navigate(`/search/${search}`);
+  };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary justify-content-betweens">
-    <Container>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav flex-grow-1">
-        <Nav className="d-flex flex-grow-1 bar">
-          <Link to="/"><Navbar.Brand >Software Engineer's Computer Superstore</Navbar.Brand></Link>
-          
-          <Form inline className='flex-grow-1'>
-            <div className="search">
-              <i className="fa fa-search"></i>
-              <input type="text" class="form-control" ref={inputRef}/>
-              <button className="btn btn-primary" onClick={handleSearch}>Search</button>
-            </div>
-          </Form>
-          <LoginComponent/>
-          <CartComponent/>
-        </Nav>
-      </Navbar.Collapse>
-    </Container>
-  </Navbar>
+      <Navbar expand="lg" className="bg-body-tertiary justify-content-between">
+          <Container>
+              <Navbar.Toggle aria-controls="basic-navbar-nav" />
+              <Navbar.Collapse id="basic-navbar-nav">
+                  <Nav className="d-flex flex-grow-1 bar">
+                      <Link to="/">
+                          <Navbar.Brand>Software Engineer's Computer Superstore</Navbar.Brand>
+                      </Link>
+                      <Form inline className="flex-grow-1">
+                          <div className="search">
+                              <input
+                                  type="text"
+                                  className="form-control"
+                                  placeholder="Search"
+                                  ref={inputRef}
+                              />
+                              <button className="btn btn-primary" onClick={handleSearch}>
+                                  Search
+                              </button>
+                          </div>
+                      </Form>
+                      <LoginComponent />
+                      <CartComponent />
+                  </Nav>
+              </Navbar.Collapse>
+          </Container>
+      </Navbar>
   );
 }
+
 
 export default NavBar;

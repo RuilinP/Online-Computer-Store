@@ -40,3 +40,28 @@
     display: flex;
     flex-wrap: wrap;
 }
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+}
+
+.controls div {
+    margin-right: 20px;
+}
+
+.controls label {
+    display: block;
+    font-weight: bold;
+}
+
+.controls select,
+.controls input {
+    padding: 5px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}

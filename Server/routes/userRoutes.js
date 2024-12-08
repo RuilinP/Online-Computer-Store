@@ -6,6 +6,7 @@ const {
     updateUser,
     deleteUser,
     loginUser,
+    getLoggedInUser,
 } = require('../controllers/userController');
 
 const authenticateJWT = require('../middlewares/authMiddleware');
@@ -13,6 +14,7 @@ const authorizeRole = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
+router.get('/me', authenticateJWT, getLoggedInUser);
 
 router.post('/register', createUser); // Create a new user (public route)
 router.post('/login', loginUser);

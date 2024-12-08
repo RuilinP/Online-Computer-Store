@@ -48,6 +48,21 @@ exports.getUserById = async (req, res) => {
     }
 };
 
+exports.getLoggedInUser = async (req, res) => {
+    try {
+        const userId = req.userId; 
+        const user = await User.findByPk(userId, { attributes: { exclude: ['hashedPassword'] } });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User retrieved successfully', user });
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving user', error: error.message });
+    }
+};
+
 // 
 // Description: Update a user's details
 // Route: PUT /api/users/:id
@@ -55,7 +70,7 @@ exports.getUserById = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, phone, address, password, role } = req.body;
+        const { name, phone, email, address, password, role } = req.body;
         const user = await User.findByPk(id);
 
         if (!user) {
@@ -65,6 +80,7 @@ exports.updateUser = async (req, res) => {
         // Update fields if provided
         user.name = name || user.name;
         user.phone = phone || user.phone;
+        user.email = email || user.email;
         user.address = address || user.address;
         user.password = password || user.password; // This will trigger the `beforeUpdate` hook
         user.role = role || user.role;
